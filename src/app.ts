@@ -1,6 +1,6 @@
 import express, {Express} from "express";
 import morgan from "morgan";
-import routers from "./routers/index.router"
+import routers from "./routers/root.router  "
 
 
 export const createApp = ():Express => {

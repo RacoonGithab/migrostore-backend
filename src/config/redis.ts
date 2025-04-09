@@ -1,7 +1,7 @@
 // src/config/redis.ts
 import Redis from 'ioredis';
 import dotenv from 'dotenv';
-import {REDIS_HOST, REDIS_PORT} from "./secrets";
+import {env} from "./secrets";
 
 dotenv.config();
 
@@ -11,8 +11,8 @@ const connectRedis = async (): Promise<Redis> => {
     if (!redisClient) {
         try {
             redisClient = new Redis({
-                host: REDIS_HOST,
-                port: REDIS_PORT,
+                host: env.REDIS_HOST,
+                port: env.REDIS_PORT,
             });
 
             redisClient.on('connect', () => {

@@ -1,23 +1,18 @@
 import * as admin from 'firebase-admin';
-import {
-    FIREBASE_PRIVATE_KEY,
-    FIREBASE_PROJECT_ID,
-    FIREBASE_CLIENT_EMAIL,
-    FIREBASE_STORAGE_BUCKET,
-} from "./secrets";
+import {env} from "./secrets";
 
 const initializeFirebase = () => {
     try {
         if (!admin.apps.length) {
-            const privateKey = FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-            if (FIREBASE_PROJECT_ID && privateKey && FIREBASE_CLIENT_EMAIL && FIREBASE_STORAGE_BUCKET) {
+            const privateKey = env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+            if (env.FIREBASE_PROJECT_ID && privateKey && env.FIREBASE_CLIENT_EMAIL && env.FIREBASE_STORAGE_BUCKET) {
                 admin.initializeApp({
                     credential: admin.credential.cert({
-                        projectId: FIREBASE_PROJECT_ID,
+                        projectId: env.FIREBASE_PROJECT_ID,
                         privateKey: privateKey,
-                        clientEmail: FIREBASE_CLIENT_EMAIL,
+                        clientEmail: env.FIREBASE_CLIENT_EMAIL,
                     }),
-                    storageBucket: FIREBASE_STORAGE_BUCKET,
+                    storageBucket: env.FIREBASE_STORAGE_BUCKET,
                 });
                 console.log("✅ Firebase загружен из переменных окружения");
             } else {

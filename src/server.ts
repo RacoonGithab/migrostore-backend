@@ -1,12 +1,7 @@
 import {Express} from "express";
 import {createApp} from "./app";
-import dotenv from 'dotenv';
-import {connectRedis} from "./config/redis";
-import initializeFirebase from "./config/firebase";
-
-dotenv.config();
-
-const APP_PORT = parseInt(process.env.APP_PORT!, 10)
+import {env} from "./config/secrets";
+import {initializeAppServices} from "./utils/init";
 
 const startServer = (app:Express, port: number):void => {
     app.listen(port, (err?:Error):void => {
@@ -18,13 +13,14 @@ const startServer = (app:Express, port: number):void => {
     })
 }
 
-(async () => {
+async function startApplication(){
     try {
-        await connectRedis();
-        initializeFirebase()
+        await initializeAppServices();
         const app = createApp();
-        startServer(app, APP_PORT);
+        startServer(app, env.APP_PORT);
     } catch (error) {
-        console.error('Ошибка при инициализации приложения:', error);
+        console.error('❌ Error during application startup:', error);
     }
-})();
+}
+
+startApplication();

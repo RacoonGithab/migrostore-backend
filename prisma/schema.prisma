@@ -13,21 +13,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  password    String
-  isActivated Boolean   @default(false) @map("is_activated")
-  role        Role      @default(USER)
-  isBlocked   Boolean   @default(false) @map("is_blocked")
-  blockedAt   DateTime? @map("blocked_at")
-  createdAt   DateTime  @map("created_at")
-  updatedAt   DateTime  @map("updated_at")
-
-  @@map("users")
-}
-
-enum Role {
+enum Roles {
   USER
   ADMIN
+}
+
+model User {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  password   String
+  isVerified Boolean   @default(false) @map("is_verified")
+  role       Roles     @default(USER)
+  isBlocked  Boolean   @default(false) @map("is_blocked")
+  blockedAt  DateTime? @map("blocked_at")
+  createdAt  DateTime  @map("created_at")
+  updatedAt  DateTime  @map("updated_at")
+
+  @@map("users")
 }
