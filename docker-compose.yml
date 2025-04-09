@@ -30,6 +30,14 @@ services:
       - my-network
     restart: on-failure
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - my-network
+    restart: unless-stopped
 
 networks:
   my-network:
