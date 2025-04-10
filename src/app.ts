@@ -1,6 +1,7 @@
 import express, {Express} from "express";
 import morgan from "morgan";
-import routers from "./routers/root.router  "
+import rootRouters from "./routers/root.router"
+import {errorHandler} from "./middlewares/errorHandler";
 
 
 export const createApp = ():Express => {
@@ -8,6 +9,7 @@ export const createApp = ():Express => {
     app.use(morgan("combined"))
     app.use(express.json())
     app.use(express.urlencoded({ extended: true }))
-    app.use("/api/v1", routers)
+    app.use("/api/v1", rootRouters)
+    app.use(errorHandler)
     return app;
 }

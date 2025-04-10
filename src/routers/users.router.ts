@@ -1,8 +1,10 @@
 import express from "express";
-import {registerUsersController} from "../controllers/users.controller"
+import {usersController} from "../controllers/users.controller"
 
 const router = express.Router();
 
-router.post("/", registerUsersController);
+router.post("/", usersController.registerUsers);
+router.post("/verified", usersController.verifiedUsers);
+router.delete("/:id", usersController.deleteUsers);
 
 export default router;
