@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post("/", usersController.registerUsers);
 router.post("/verified", usersController.verifiedUsers);
-router.delete("/:id", usersController.deleteUsers);
+router.post("/verify/resend", usersController.requestVerificationCode);
+router.delete("/", usersController.deleteUsers);
 
 export default router;

@@ -1,11 +1,7 @@
-import { z } from "zod";
+import {z} from "zod";
+import {regexPatterns} from "../utils/constants/regex.patterns";
 
-export const RegisterUserSchema = z.object({
-    email: z.string()
-        .email("incorrect email format")
-        .min(5, "Email must contain at least 5 characters")
-        .max(255, "Email must contain no more than 255 characters."),
-    password: z.string()
-        .min(6, "Password must contain at least 8 characters")
-        .max(100, "Password must contain no more than 100 characters"),
-});
+export const registerUserSchema = z.object({
+    email: z.string().regex(regexPatterns.EMAIL, "Invalid email format").nonempty("Email is required"),
+    password: z.string().regex(regexPatterns.PASSWORD, "Invalid password format").nonempty("Password is required"),
+})

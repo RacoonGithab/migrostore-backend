@@ -11,6 +11,10 @@ const verifiedUsers = async (req: Request, res: Response) => {
     res.status(200).json({ message: "User already verified" });
 }
 
+const requestVerificationCode = async (req: Request, res: Response) => {
+    res.status(200).json({ message: "OTP code resent" });
+};
+
 const deleteUsers = async (req: Request, res: Response) => {
     res.status(200).json({ message: "User already deleted" });
 }
@@ -18,5 +22,6 @@ const deleteUsers = async (req: Request, res: Response) => {
 export const usersController = {
     registerUsers,
     verifiedUsers,
+    requestVerificationCode,
     deleteUsers
 } as const;
