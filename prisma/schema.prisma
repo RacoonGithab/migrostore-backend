@@ -29,5 +29,21 @@ model User {
   createdAt  DateTime  @map("created_at")
   updatedAt  DateTime  @map("updated_at")
 
+  VerificationCode VerificationCode[] @relation("UserVerificationCode")
+
   @@map("users")
+}
+
+model VerificationCode {
+  id               Int      @id @default(autoincrement())
+  userId           String   @map("user_id")
+  verificationCode String   @map("verification_code")
+  isActive         Boolean  @default(true) @map("is_active")
+  expiredAt        DateTime @map("expired_at")
+  createdAt        DateTime @map("created_at")
+  updatedAt        DateTime @map("updated_at")
+
+  User User @relation("UserVerificationCode", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_codes")
 }

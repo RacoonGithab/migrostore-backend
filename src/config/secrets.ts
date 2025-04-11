@@ -13,4 +13,9 @@ export const env = {
     FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
     FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
     FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET,
+    VERIFICATION_CODE_TTL: process.env.VERIFICATION_CODE_TTL!,
+    SMTP_EMAIL_HOST: process.env.SMTP_EMAIL_HOST as string | undefined,
+    SMTP_EMAIL_PORT: process.env.SMTP_EMAIL_PORT ? parseInt(process.env.SMTP_EMAIL_PORT, 10) : undefined,
+    EMAIL_HOST_USER: process.env.EMAIL_HOST_USER as string | undefined,
+    EMAIL_HOST_PASSWORD: process.env.EMAIL_HOST_PASSWORD as string | undefined,
 } as const;

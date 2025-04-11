@@ -1,12 +1,8 @@
 import {prismaClient} from "../config/prismaClient";
 import {User} from "@prisma/client";
+import {CreateUserDto} from "../types/users.dto";
 
-const createUser = async (data: {
-    email: string,
-    password: string,
-    updatedAt: Date,
-    createdAt: Date,
-}): Promise<User> => {
+const createUser = async (data: CreateUserDto): Promise<User> => {
     return prismaClient.user.create({
         data: {
             ...data,
