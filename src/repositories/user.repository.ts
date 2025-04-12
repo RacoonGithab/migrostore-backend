@@ -10,7 +10,7 @@ const createUser = async (data: CreateUserDto): Promise<User> => {
     });
 }
 
-const getByEmail = async (email: string): Promise<User | null> => {
+const getUserByEmail = async (email: string): Promise<User | null> => {
     return prismaClient.user.findUnique({
         where: {
             email: email
@@ -18,7 +18,23 @@ const getByEmail = async (email: string): Promise<User | null> => {
     })
 }
 
+const updateUserByEmail = async (data: {
+    email: string,
+    updatedAt: Date,
+}): Promise<void> => {
+    await prismaClient.user.update({
+        where: {
+            email: data.email,
+        },
+        data: {
+            isVerified: true,
+            updatedAt: data.updatedAt,
+        }
+    });
+}
+
 export const usersRepository = {
     createUser,
-    getByEmail
+    getUserByEmail,
+    updateUserByEmail
 } as const;

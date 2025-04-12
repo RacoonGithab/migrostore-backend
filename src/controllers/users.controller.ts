@@ -8,7 +8,8 @@ const registerUsers = async (req: Request, res: Response) => {
 }
 
 const verifyUser = async (req: Request, res: Response) => {
-    res.status(200).json({ message: "User already verified" });
+    await usersService.verifyUser(req.body)
+    res.status(200).json({ message: "User verified" });
 }
 
 const requestVerificationCode = async (req: Request, res: Response) => {
