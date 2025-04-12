@@ -6,12 +6,18 @@ import {
     USER_ALREADY_EXISTS,
     USER_ALREADY_VERIFIED,
     USER_BLOCKED,
-    USER_NOT_FOUND, VERIFICATION_CODE_EXPIRED, VERIFICATION_CODE_MISMATCH, VERIFICATION_CODE_NOT_FOUND
+    USER_NOT_FOUND,
+    VERIFICATION_CODE_EXPIRED,
+    VERIFICATION_CODE_LIMIT_REACHED,
+    VERIFICATION_CODE_MISMATCH,
+    VERIFICATION_CODE_NOT_FOUND
 } from "../utils/constants/error.masseges";
-import {verificationCodesRepository} from "../repositories/verificationCode.repository";
+import {verificationCodesRepository} from "../repositories/verification-code.repository";
 import {createExpirationDate, createVerificationCode} from "../utils/create.verification-code";
 import {sendOtpEmail} from "../utils/send.verification-code";
-import {TypeVerifyUser} from "../types/verify.user";
+import {TypeResendVerificationCode, TypeVerifyUser} from "../types/verify.user";
+import {endOfDay, startOfDay} from "date-fns";
+import {env} from "../config/secrets";
 
 const registerUser = async (data: TypeRegisterUser):Promise<void> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
@@ -27,18 +33,7 @@ const registerUser = async (data: TypeRegisterUser):Promise<void> => {
         createdAt: new Date()
     });
 
-    const createdVerificationCode = await verificationCodesRepository.createVerificationCode({
-        userId: createdUser.id,
-        verificationCode: createVerificationCode(),
-        expiredAt: createExpirationDate(new Date()),
-        updatedAt: new Date(),
-        createdAt: new Date()
-    });
-
-    await sendOtpEmail({
-        email: createdUser.email,
-        verificationCode: createdVerificationCode.verificationCode,
-    });
+    await _createAndSendVerificationCode(createdUser.id, createdUser.email);
 }
 
 const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
@@ -81,7 +76,60 @@ const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
     })
 }
 
+const resendVerificationCode = async (data: TypeResendVerificationCode): Promise<void> => {
+
+    const dbUser = await usersRepository.getUserByEmail(data.email);
+
+    if (!dbUser) {
+        throw new ApiError(404, USER_NOT_FOUND);
+    }
+
+    if (dbUser.isBlocked) {
+        throw new ApiError(403, USER_BLOCKED);
+    }
+
+    if (dbUser.isVerified) {
+        throw new ApiError(409, USER_ALREADY_VERIFIED);
+    }
+
+    const dbVerificationCodesToday = await verificationCodesRepository.getVerificationCodesTodayByUserId({
+        userId: dbUser.id,
+        startDate: startOfDay(new Date()),
+        endDate: endOfDay(new Date()),
+    });
+
+    if (dbVerificationCodesToday.length >= env.MAX_DAILY_VERIFICATION_CODES) {
+        throw new ApiError(429, VERIFICATION_CODE_LIMIT_REACHED);
+    }
+
+    if (dbVerificationCodesToday.length > 0) {
+        await verificationCodesRepository.updateVerificationCodeById({
+            id: dbVerificationCodesToday[0].id,
+            updatedAt: new Date(),
+        });
+    }
+
+    await _createAndSendVerificationCode(dbUser.id, dbUser.email);
+}
+
+const _createAndSendVerificationCode = async (userId: string, email: string): Promise<void> => {
+    const createdVerificationCode = await verificationCodesRepository.createVerificationCode({
+        userId: userId,
+        verificationCode: createVerificationCode(),
+        expiredAt: createExpirationDate(new Date()),
+        updatedAt: new Date(),
+        createdAt: new Date(),
+    });
+
+    await sendOtpEmail({
+        email: email,
+        verificationCode: createdVerificationCode.verificationCode,
+    });
+};
+
+
 export const usersService = {
     registerUser,
-    verifyUser
+    verifyUser,
+    resendVerificationCode
 } as const;

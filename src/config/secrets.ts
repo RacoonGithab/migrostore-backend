@@ -18,4 +18,5 @@ export const env = {
     SMTP_EMAIL_PORT: process.env.SMTP_EMAIL_PORT ? parseInt(process.env.SMTP_EMAIL_PORT, 10) : undefined,
     EMAIL_HOST_USER: process.env.EMAIL_HOST_USER as string | undefined,
     EMAIL_HOST_PASSWORD: process.env.EMAIL_HOST_PASSWORD as string | undefined,
+    MAX_DAILY_VERIFICATION_CODES: parseInt(process.env.MAX_DAILY_VERIFICATION_CODES!)
 } as const;

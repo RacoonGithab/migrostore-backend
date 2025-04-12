@@ -1,6 +1,10 @@
 import {prismaClient} from "../config/prismaClient";
 import {VerificationCode} from "@prisma/client";
-import {CreateVerificationCodeDto} from "../types/verification-code.dto";
+import {
+    CreateVerificationCodeDto,
+    GetVerificationCodesDto,
+    UpdateVerificationCodeDto
+} from "../types/verification-code.dto";
 
 const createVerificationCode = async (data : CreateVerificationCodeDto): Promise<VerificationCode> => {
     return prismaClient.verificationCode.create({
@@ -21,7 +25,7 @@ const getLastUserVerificationCodeByUserId = async (userId: string):Promise<Verif
 }
 
 
-const updateVerificationCodeById = async (data: {id: number, updatedAt: Date}): Promise<void> => {
+const updateVerificationCodeById = async (data: UpdateVerificationCodeDto): Promise<void> => {
     await prismaClient.verificationCode.update({
         where: {
             id: data.id,
@@ -33,8 +37,24 @@ const updateVerificationCodeById = async (data: {id: number, updatedAt: Date}): 
     });
 }
 
+const getVerificationCodesTodayByUserId = async (data: GetVerificationCodesDto): Promise<VerificationCode[]> => {
+    return prismaClient.verificationCode.findMany({
+        where: {
+            userId: data.userId,
+            createdAt: {
+                gte: data.startDate,
+                lte: data.endDate,
+            }
+        },
+        orderBy: {
+            createdAt: "desc",
+        }
+    });
+}
+
 export const verificationCodesRepository = {
     createVerificationCode,
     getLastUserVerificationCodeByUserId,
-    updateVerificationCodeById
+    updateVerificationCodeById,
+    getVerificationCodesTodayByUserId
 }

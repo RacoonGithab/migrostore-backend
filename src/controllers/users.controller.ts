@@ -3,17 +3,18 @@ import {usersService} from "../services/users.service";
 
 
 const registerUsers = async (req: Request, res: Response) => {
-    await usersService.registerUser(req.body)
+    await usersService.registerUser(req.body);
     res.status(201).json({ message: "User registration successful" });
 }
 
 const verifyUser = async (req: Request, res: Response) => {
-    await usersService.verifyUser(req.body)
+    await usersService.verifyUser(req.body);
     res.status(200).json({ message: "User verified" });
 }
 
-const requestVerificationCode = async (req: Request, res: Response) => {
-    res.status(200).json({ message: "OTP code resent" });
+const resendVerificationCode = async (req: Request, res: Response) => {
+    await usersService.resendVerificationCode(req.body);
+    res.status(201).json({ message: "Verification code sent successfully" });
 };
 
 const deleteUsers = async (req: Request, res: Response) => {
@@ -23,6 +24,6 @@ const deleteUsers = async (req: Request, res: Response) => {
 export const usersController = {
     registerUsers,
     verifyUser,
-    requestVerificationCode,
+    resendVerificationCode,
     deleteUsers
 } as const;
