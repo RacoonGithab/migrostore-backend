@@ -1,9 +1,13 @@
 export const USER_ALREADY_EXISTS = "User already exists";
+export const USER_DOES_NOT_EXIST = "User does not exist. Please register.";
+export const INCORRECT_PASSWORD = "Incorrect password";
 export const INTERNAL_SERVER_ERROR = "Internal server error";
 export const USER_NOT_FOUND = "User does not exist";
 export const USER_BLOCKED = "User is blocked";
 export const USER_ALREADY_VERIFIED = "User already verified";
+export const EMAIL_NOT_VERIFIED = "The user is not verified"
 export const VERIFICATION_CODE_NOT_FOUND = "Verification code does not exist";
 export const VERIFICATION_CODE_MISMATCH = "Verification code does not match";
 export const VERIFICATION_CODE_EXPIRED = "Verification code is expired";
 export const VERIFICATION_CODE_LIMIT_REACHED = "Daily verification code limit reached";
+export const ACTIVE_SESSION_EXISTS = "An active session exists";

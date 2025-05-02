@@ -1,5 +1,5 @@
 import {usersRepository} from "../repositories/user.repository";
-import {TypeRegisterUser} from "../types/user.register";
+import {TypeRegisterUser} from "../types/user.types";
 import {createPasswordHash} from "../utils/auth.util";
 import ApiError from "../errors/ApiError";
 import {

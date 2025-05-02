@@ -6,11 +6,11 @@ import {catchAsync} from "../middlewares/async.handler";
 import {verifyUserSchema} from "../schemas/verify-user.schema";
 import {resendVerificationCodeSchema} from "../schemas/resend.verification-code.schema";
 
-const router = express.Router();
+const userRouters = express.Router();
 
-router.post("/", validateRequestBody(registerUserSchema), catchAsync(usersController.registerUsers));
-router.post("/verified", validateRequestBody(verifyUserSchema), catchAsync(usersController.verifyUser));
-router.post("/verify/resend", validateRequestBody(resendVerificationCodeSchema), catchAsync(usersController.resendVerificationCode));
-router.delete("/", catchAsync(usersController.deleteUsers));
+userRouters.post("/", validateRequestBody(registerUserSchema), catchAsync(usersController.registerUsers));
+userRouters.post("/verified", validateRequestBody(verifyUserSchema), catchAsync(usersController.verifyUser));
+userRouters.post("/verify/resend", validateRequestBody(resendVerificationCodeSchema), catchAsync(usersController.resendVerificationCode));
+userRouters.delete("/", catchAsync(usersController.deleteUsers));
 
-export default router;
+export default userRouters;

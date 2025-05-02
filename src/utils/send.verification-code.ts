@@ -1,6 +1,6 @@
 import {transporter} from "../config/mail.transporter";
 import {env} from "../config/secrets"
-import {TypeRegisterUser} from "../types/user.register";
+import {TypeRegisterUser} from "../types/user.types";
 import {createHtmlTemplate} from "./create.html-template";
 import ApiError from "../errors/ApiError";
 
