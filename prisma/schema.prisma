@@ -18,6 +18,11 @@ enum Roles {
   ADMIN
 }
 
+enum VerificationCodeType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
 model User {
   id         String    @id @default(uuid())
   email      String    @unique
@@ -28,7 +33,7 @@ model User {
   isBlocked  Boolean   @default(false) @map("is_blocked")
   blockedAt  DateTime? @map("blocked_at")
   createdAt  DateTime  @map("created_at")
-  updatedAt  DateTime  @map("updated_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
   VerificationCode VerificationCode[] @relation("UserVerificationCode")
   Session          Session[]          @relation("UserSession")
@@ -37,13 +42,14 @@ model User {
 }
 
 model VerificationCode {
-  id               Int      @id @default(autoincrement())
-  userId           String   @map("user_id")
-  verificationCode String   @map("verification_code")
-  isActive         Boolean  @default(true) @map("is_active")
-  expiredAt        DateTime @map("expired_at")
-  createdAt        DateTime @map("created_at")
-  updatedAt        DateTime @map("updated_at")
+  id               Int                  @id @default(autoincrement())
+  userId           String               @map("user_id")
+  verificationCode String               @map("verification_code")
+  type             VerificationCodeType @map("type")
+  isActive         Boolean              @default(true) @map("is_active")
+  expiredAt        DateTime             @map("expired_at")
+  createdAt        DateTime             @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
 
   User User @relation("UserVerificationCode", fields: [userId], references: [id], onDelete: Cascade)
 
@@ -53,9 +59,9 @@ model VerificationCode {
 model Session {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
-  expiresAt DateTime @map("expires_at")
+  expiredAt DateTime @map("expires_at")
   createdAt DateTime @map("created_at")
-  updatedAt DateTime @map("apdated_at")
+  updatedAt DateTime @updatedAt @map("apdated_at")
 
   user User @relation("UserSession", fields: [userId], references: [id], onDelete: Cascade)
 

@@ -1,13 +1,9 @@
 import {prismaClient} from "../config/prismaClient";
-import {Session, User} from "@prisma/client";
-import {CreateSessionDto, CreateUserDto, updateUserActivityStatusDto} from "../types/users.dto";
+import {User} from "@prisma/client";
+import {CreateUserDto, updateUserActivityStatusDto} from "../types/users.dto";
 
 const createUser = async (data: CreateUserDto): Promise<User> => {
-    return prismaClient.user.create({
-        data: {
-            ...data,
-        }
-    });
+    return prismaClient.user.create({data});
 }
 
 const getUserByEmail = async (email: string): Promise<User | null> => {
@@ -44,30 +40,10 @@ const updateUserActivityStatus = async (data: updateUserActivityStatusDto): Prom
     });
 }
 
-const createSession = async (data: CreateSessionDto): Promise<Session> => {
-    return prismaClient.session.create({
-        data: {
-            ...data
-        }
-    });
-}
-
-const findActiveSessionByUserId = async (userId: string): Promise<Session | null> => {
-    return prismaClient.session.findFirst({
-        where: {
-            userId: userId,
-            expiresAt: {
-                gt: new Date(),
-            },
-        },
-    });
-}
 
 export const usersRepository = {
     createUser,
     getUserByEmail,
     updateUserByEmail,
-    updateUserActivityStatus,
-    createSession,
-    findActiveSessionByUserId
+    updateUserActivityStatus
 } as const;

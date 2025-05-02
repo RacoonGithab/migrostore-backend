@@ -7,6 +7,7 @@ import {
 import ApiError from "../errors/ApiError";
 import {TypeLoginUser} from "../types/user.types";
 import {usersRepository} from "../repositories/user.repository";
+import {sessionsRepository} from "../repositories/session.repository";
 import bcrypt from "bcryptjs";
 import {createSessionExpirationDate} from "../utils/auth.util";
 
@@ -28,7 +29,7 @@ const loginService = async (data: TypeLoginUser): Promise<void> => {
         throw new ApiError(401, INCORRECT_PASSWORD);
     }
 
-    const activeSession = await usersRepository.findActiveSessionByUserId(userDb.id);
+    const activeSession = await sessionsRepository.findActiveSessionByUserId(userDb.id);
 
     if (activeSession) {
         throw new ApiError(409, ACTIVE_SESSION_EXISTS);
@@ -36,9 +37,9 @@ const loginService = async (data: TypeLoginUser): Promise<void> => {
 
     const expiresAt = createSessionExpirationDate();
 
-    await usersRepository.createSession({
+    await sessionsRepository.createSession({
         userId: userDb.id,
-        expiresAt: expiresAt,
+        expiredAt: expiresAt,
         createdAt: new Date(),
         updatedAt: new Date()
     });

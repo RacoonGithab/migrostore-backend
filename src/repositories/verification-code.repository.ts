@@ -1,5 +1,5 @@
 import {prismaClient} from "../config/prismaClient";
-import {VerificationCode} from "@prisma/client";
+import {VerificationCode, VerificationCodeType} from "@prisma/client";
 import {
     CreateVerificationCodeDto,
     GetVerificationCodesDto,
@@ -7,16 +7,15 @@ import {
 } from "../types/verification-code.dto";
 
 const createVerificationCode = async (data : CreateVerificationCodeDto): Promise<VerificationCode> => {
-    return prismaClient.verificationCode.create({
-        data: data
-    })
+    return prismaClient.verificationCode.create({data})
 }
 
-const getLastUserVerificationCodeByUserId = async (userId: string):Promise<VerificationCode | null> => {
+const getLastActiveVerificationCode = async (userId: string, type: VerificationCodeType):Promise<VerificationCode | null> => {
     return prismaClient.verificationCode.findFirst({
         where: {
             userId: userId,
             isActive: true,
+            type: type
         },
         orderBy: {
             createdAt: "desc"
@@ -54,7 +53,7 @@ const getVerificationCodesTodayByUserId = async (data: GetVerificationCodesDto):
 
 export const verificationCodesRepository = {
     createVerificationCode,
-    getLastUserVerificationCodeByUserId,
+    getLastActiveVerificationCode,
     updateVerificationCodeById,
     getVerificationCodesTodayByUserId
 }

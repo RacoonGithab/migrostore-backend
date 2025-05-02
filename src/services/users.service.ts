@@ -13,11 +13,11 @@ import {
     VERIFICATION_CODE_NOT_FOUND
 } from "../utils/constants/error.masseges";
 import {verificationCodesRepository} from "../repositories/verification-code.repository";
-import {createExpirationDate, createVerificationCode} from "../utils/create.verification-code";
-import {sendOtpEmail} from "../utils/send.verification-code";
 import {TypeResendVerificationCode, TypeVerifyUser} from "../types/verify.user";
 import {endOfDay, startOfDay} from "date-fns";
 import {env} from "../config/secrets";
+import {otpService} from "./otp.service";
+import {VerificationCodeType} from "@prisma/client";
 
 const registerUser = async (data: TypeRegisterUser):Promise<void> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
@@ -33,7 +33,7 @@ const registerUser = async (data: TypeRegisterUser):Promise<void> => {
         createdAt: new Date()
     });
 
-    await _createAndSendVerificationCode(createdUser.id, createdUser.email);
+    await otpService.createAndSendVerificationEmailCode(createdUser.id, createdUser.email);
 }
 
 const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
@@ -51,7 +51,10 @@ const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
         throw new ApiError(409, USER_ALREADY_VERIFIED);
     }
 
-    const dbVerificationCode = await verificationCodesRepository.getLastUserVerificationCodeByUserId(userDb.id);
+    const dbVerificationCode = await verificationCodesRepository.getLastActiveVerificationCode(
+        userDb.id,
+        VerificationCodeType.EMAIL_VERIFICATION
+    );
 
     if (!dbVerificationCode) {
         throw new ApiError(404, VERIFICATION_CODE_NOT_FOUND);
@@ -109,23 +112,9 @@ const resendVerificationCode = async (data: TypeResendVerificationCode): Promise
         });
     }
 
-    await _createAndSendVerificationCode(dbUser.id, dbUser.email);
+    await otpService.createAndSendVerificationEmailCode(dbUser.id, dbUser.email);
 }
 
-const _createAndSendVerificationCode = async (userId: string, email: string): Promise<void> => {
-    const createdVerificationCode = await verificationCodesRepository.createVerificationCode({
-        userId: userId,
-        verificationCode: createVerificationCode(),
-        expiredAt: createExpirationDate(new Date()),
-        updatedAt: new Date(),
-        createdAt: new Date(),
-    });
-
-    await sendOtpEmail({
-        email: email,
-        verificationCode: createdVerificationCode.verificationCode,
-    });
-};
 
 
 export const usersService = {
