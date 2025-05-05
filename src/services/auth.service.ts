@@ -9,10 +9,12 @@ import {TypeLoginUser} from "../types/user.types";
 import {usersRepository} from "../repositories/user.repository";
 import {sessionsRepository} from "../repositories/session.repository";
 import bcrypt from "bcryptjs";
-import {createSessionExpirationDate} from "../utils/auth.util";
+import {tokenService} from "./token.service";
+import {TokenDto} from "../types/token.payload.dto";
+import {redisService} from "./redis.service";
 
 
-const loginService = async (data: TypeLoginUser): Promise<void> => {
+const loginService = async (data: TypeLoginUser): Promise<TokenDto> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
 
     if (!userDb) {
@@ -35,21 +37,40 @@ const loginService = async (data: TypeLoginUser): Promise<void> => {
         throw new ApiError(409, ACTIVE_SESSION_EXISTS);
     }
 
-    const expiresAt = createSessionExpirationDate();
+    const { accessToken, refreshToken } = tokenService.generateTokenPair({ userId: userDb.id, role: userDb.role });
 
     await sessionsRepository.createSession({
         userId: userDb.id,
-        expiredAt: expiresAt,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
     });
 
-    await usersRepository.updateUserActivityStatus({
-        userId: userDb.id,
-        isActive: true,
-    });
+    return {accessToken, refreshToken}
 }
+
+const logoutService = async (userId: string) => {
+    const session = await sessionsRepository.findActiveSessionByUserId(userId);
+
+    if (session) {
+        await sessionsRepository.updateSession({
+            id: session.id,
+            isActive: false,
+            updatedAt: new Date()
+        });
+
+        if (session.accessToken) {
+            await redisService.blackListToken(session.accessToken);
+        }
+
+        if (session.refreshToken) {
+            await redisService.blackListToken(session.refreshToken)
+        }
+    }
+};
 
 export const authService = {
     loginService,
+    logoutService
 }

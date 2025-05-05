@@ -28,7 +28,6 @@ model User {
   email      String    @unique
   password   String
   isVerified Boolean   @default(false) @map("is_verified")
-  isActive   Boolean   @default(false) @map("is_active")
   role       Roles     @default(USER)
   isBlocked  Boolean   @default(false) @map("is_blocked")
   blockedAt  DateTime? @map("blocked_at")
@@ -57,11 +56,13 @@ model VerificationCode {
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  expiredAt DateTime @map("expires_at")
-  createdAt DateTime @map("created_at")
-  updatedAt DateTime @updatedAt @map("apdated_at")
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  refreshToken String   @unique
+  accessToken  String   @unique
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @map("created_at")
+  updatedAt    DateTime @updatedAt @map("apdated_at")
 
   user User @relation("UserSession", fields: [userId], references: [id], onDelete: Cascade)
 

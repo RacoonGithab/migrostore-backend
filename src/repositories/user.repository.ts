@@ -29,21 +29,10 @@ const updateUserByEmail = async (data: {
     });
 }
 
-const updateUserActivityStatus = async (data: updateUserActivityStatusDto): Promise<User> => {
-    return prismaClient.user.update({
-        where: {
-            id: data.userId,
-        },
-        data: {
-            isActive: data.isActive
-        },
-    });
-}
 
 
 export const usersRepository = {
     createUser,
     getUserByEmail,
-    updateUserByEmail,
-    updateUserActivityStatus
+    updateUserByEmail
 } as const;
