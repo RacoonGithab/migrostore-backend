@@ -1,7 +1,7 @@
 import {verificationCodesRepository} from "../repositories/verification-code.repository";
 import {createExpirationDate, createVerificationCode} from "../utils/create.verification-code";
 import {VerificationCodeType} from "@prisma/client";
-import {sendOtpEmail} from "../utils/send.verification-code";
+import {sendVerificationCodeEmail} from "../utils/send.verification-code";
 
 
 const createAndSendVerificationEmailCode = async (userId: string, email: string): Promise<void> => {
@@ -13,12 +13,12 @@ const createAndSendVerificationEmailCode = async (userId: string, email: string)
         type: VerificationCodeType.EMAIL_VERIFICATION,
     });
 
-    await sendOtpEmail({
+    await sendVerificationCodeEmail({
         email: email,
         verificationCode: createdVerificationCode.verificationCode,
     });
 };
 
-export const otpService = {
+export const verificationCodeService = {
     createAndSendVerificationEmailCode
 }

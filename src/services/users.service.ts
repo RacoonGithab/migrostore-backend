@@ -16,7 +16,7 @@ import {verificationCodesRepository} from "../repositories/verification-code.rep
 import {TypeResendVerificationCode, TypeVerifyUser} from "../types/verify.user";
 import {endOfDay, startOfDay} from "date-fns";
 import {env} from "../config/secrets";
-import {otpService} from "./otp.service";
+import {verificationCodeService} from "./verification-code.service";
 import {VerificationCodeType} from "@prisma/client";
 
 const registerUser = async (data: TypeRegisterUser):Promise<void> => {
@@ -33,7 +33,7 @@ const registerUser = async (data: TypeRegisterUser):Promise<void> => {
         createdAt: new Date()
     });
 
-    await otpService.createAndSendVerificationEmailCode(createdUser.id, createdUser.email);
+    await verificationCodeService.createAndSendVerificationEmailCode(createdUser.id, createdUser.email);
 }
 
 const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
@@ -112,7 +112,7 @@ const resendVerificationCode = async (data: TypeResendVerificationCode): Promise
         });
     }
 
-    await otpService.createAndSendVerificationEmailCode(dbUser.id, dbUser.email);
+    await verificationCodeService.createAndSendVerificationEmailCode(dbUser.id, dbUser.email);
 }
 
 

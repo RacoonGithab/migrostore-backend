@@ -5,7 +5,7 @@ import {createHtmlTemplate} from "./create.html-template";
 import ApiError from "../errors/ApiError";
 
 
-export const sendOtpEmail = async (data: Pick<TypeRegisterUser, "email"> & {
+export const sendVerificationCodeEmail = async (data: Pick<TypeRegisterUser, "email"> & {
     verificationCode: string
 }): Promise<void> => {
     const mailOptions = {
