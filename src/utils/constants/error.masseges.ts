@@ -12,4 +12,5 @@ export const VERIFICATION_CODE_EXPIRED = "Verification code is expired";
 export const VERIFICATION_CODE_LIMIT_REACHED = "Daily verification code limit reached";
 export const ACTIVE_SESSION_EXISTS = "An active session exists";
 export const INVALID_AUTHORIZATION_HEADER = "Unauthorized - Invalid Authorization header";
-export const INVALID_TOKEN_HEADER = "Unauthorized - Invalid access token";
+export const INVALID_TOKEN_HEADER = "Unauthorized - Invalid token";
+export const USER_NOTFOUND = "User not found";

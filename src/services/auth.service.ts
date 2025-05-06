@@ -1,16 +1,16 @@
 import {
     ACTIVE_SESSION_EXISTS,
     EMAIL_NOT_VERIFIED,
-    INCORRECT_PASSWORD,
-    USER_DOES_NOT_EXIST
+    INCORRECT_PASSWORD, INVALID_TOKEN_HEADER,
+    USER_DOES_NOT_EXIST, USER_NOTFOUND
 } from "../utils/constants/error.masseges";
 import ApiError from "../errors/ApiError";
 import {TypeLoginUser} from "../types/user.types";
 import {usersRepository} from "../repositories/user.repository";
 import {sessionsRepository} from "../repositories/session.repository";
 import bcrypt from "bcryptjs";
-import {tokenService} from "./token.service";
-import {TokenDto} from "../types/token.payload.dto";
+import {tokenUtils} from "../utils/token.util"
+import {TokenDto, TokenPayload} from "../types/dto/token.dto";
 import {redisService} from "./redis.service";
 
 
@@ -37,7 +37,7 @@ const loginService = async (data: TypeLoginUser): Promise<TokenDto> => {
         throw new ApiError(409, ACTIVE_SESSION_EXISTS);
     }
 
-    const { accessToken, refreshToken } = tokenService.generateTokenPair({ userId: userDb.id, role: userDb.role });
+    const { accessToken, refreshToken } = tokenUtils.generateTokenPair({ userId: userDb.id, role: userDb.role });
 
     await sessionsRepository.createSession({
         userId: userDb.id,
@@ -54,7 +54,7 @@ const logoutService = async (userId: string) => {
     const session = await sessionsRepository.findActiveSessionByUserId(userId);
 
     if (session) {
-        await sessionsRepository.updateSession({
+        await sessionsRepository.deactivationSession({
             id: session.id,
             isActive: false,
             updatedAt: new Date()
@@ -68,9 +68,45 @@ const logoutService = async (userId: string) => {
             await redisService.blackListToken(session.refreshToken)
         }
     }
-};
+}
+
+const refreshAccessToken = async (refreshToken: string, userId: string, jti: string): Promise<TokenDto> => {
+    const session = await sessionsRepository.findActiveSessionByUserIdAndRefreshToken(userId, refreshToken);
+
+    if (!session || !session.isActive) {
+        throw new ApiError(401, INVALID_TOKEN_HEADER);
+    }
+
+    const oldAccessTokenJti = session.accessToken ? (tokenUtils.decodeToken(session.accessToken) as TokenPayload)?.jti : null;
+
+    const user = await usersRepository.getUserById(userId);
+    if (!user) {
+        throw new ApiError(404, USER_NOTFOUND);
+    }
+
+    const newTokenPair = tokenUtils.generateTokenPair({userId: user.id, role: user.role});
+
+    await sessionsRepository.updateSession({
+        id: session.id,
+        isActive: true,
+        updatedAt: new Date(),
+        accessToken: newTokenPair.accessToken,
+        refreshToken: newTokenPair.refreshToken,
+    });
+
+    if (oldAccessTokenJti) {
+        const oldAccessTokenExpiry = tokenUtils.getExpirationTime(session.accessToken);
+        if (oldAccessTokenExpiry) {
+            const expirationTimeSec = oldAccessTokenExpiry - Math.floor(Date.now() / 1000);
+            await redisService.addJtiToBlacklist(oldAccessTokenJti, expirationTimeSec);
+        }
+    }
+
+    return newTokenPair;
+}
 
 export const authService = {
     loginService,
-    logoutService
+    logoutService,
+    refreshAccessToken
 }

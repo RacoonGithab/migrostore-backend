@@ -1,32 +1,35 @@
 import {Request, Response, NextFunction} from "express";
-import ApiError from "../errors/ApiError";
-import {INVALID_AUTHORIZATION_HEADER, INVALID_TOKEN_HEADER} from "../utils/constants/error.masseges";
-import {tokenService} from "../services/token.service";
-import {TokenPayload} from "../types/token.payload.dto";
-import {redisService} from "../services/redis.service";
+import {tokenUtils} from "../utils/token.util";
+import {RefreshTokenPayload, TokenPayload} from "../types/dto/token.dto";
 
 
-export const authValidationMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader?.startsWith('Bearer ')) {
-        throw new ApiError(401, INVALID_AUTHORIZATION_HEADER)
-    }
-
-    const token = authHeader.split(" ")[1];
-    const payload = tokenService.verifyAccessToken(token) as TokenPayload & { jti?: string };
-
-    if (!payload) {
-        throw new ApiError(401, INVALID_TOKEN_HEADER)
-    }
-
-    if (payload.jti) {
-        const isBlacklisted = await redisService.isJtiBlacklisted(payload.jti);
-        if (isBlacklisted) {
-            throw new ApiError(401, INVALID_TOKEN_HEADER);
-        }
-    }
+export const accessTokenValidationMiddleware = async (
+    req: Request & { user?: { id: string; role?: string } },
+    _res: Response, next: NextFunction
+): Promise<void> => {
+    const payload = await tokenUtils.validateToken(
+        req,
+        tokenUtils.verifyAccessToken,
+        'access'
+    ) as TokenPayload & { jti?: string; exp?: number };
 
     req.params = { id: payload.userId, role: payload.role };
     next();
 }
+
+export const refreshTokenValidationMiddleware = async (
+    req: Request,
+    _res: Response,
+    next: NextFunction
+): Promise<void> => {
+    const payload = await tokenUtils.validateToken(
+        req,
+        tokenUtils.verifyRefreshToken,
+        'refresh'
+    ) as RefreshTokenPayload & { jti: string; exp?: number };
+
+    req.params = { userId: payload.userId, jti: payload.jti };
+    next();
+}
+
+

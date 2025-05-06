@@ -4,7 +4,7 @@ import {
     CreateVerificationCodeDto,
     GetVerificationCodesDto,
     UpdateVerificationCodeDto
-} from "../types/verification-code.dto";
+} from "../types/dto/verification-code.dto";
 
 const createVerificationCode = async (data : CreateVerificationCodeDto): Promise<VerificationCode> => {
     return prismaClient.verificationCode.create({data})

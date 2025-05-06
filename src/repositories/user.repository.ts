@@ -1,6 +1,6 @@
 import {prismaClient} from "../config/prismaClient";
 import {User} from "@prisma/client";
-import {CreateUserDto, updateUserActivityStatusDto} from "../types/users.dto";
+import {CreateUserDto, updateUserActivityStatusDto} from "../types/dto/users.dto";
 
 const createUser = async (data: CreateUserDto): Promise<User> => {
     return prismaClient.user.create({data});
@@ -29,10 +29,17 @@ const updateUserByEmail = async (data: {
     });
 }
 
-
+const getUserById = async (id: string): Promise<User | null> => {
+    return prismaClient.user.findUnique({
+        where: {
+            id: id,
+        },
+    });
+};
 
 export const usersRepository = {
     createUser,
     getUserByEmail,
-    updateUserByEmail
+    updateUserByEmail,
+    getUserById
 } as const;

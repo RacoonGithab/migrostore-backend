@@ -1,6 +1,6 @@
 import {Session} from "@prisma/client";
 import {prismaClient} from "../config/prismaClient";
-import {CreateSessionDto, UpdateSessionDto} from "../types/session.dto";
+import {CreateSessionDto, RefreshTokenSessionDto, UpdateSessionDto} from "../types/dto/session.dto";
 
 
 const createSession = async (data: CreateSessionDto): Promise<Session> => {
@@ -16,7 +16,21 @@ const findActiveSessionByUserId = async (userId: string): Promise<Session | null
     });
 }
 
-const updateSession = async (data: UpdateSessionDto): Promise<void> => {
+const findActiveSessionByUserIdAndRefreshToken = async (
+    userId: string,
+    refreshToken: string
+): Promise<Session | null> => {
+    return prismaClient.session.findFirst({
+        where: {
+            userId: userId,
+            refreshToken: refreshToken,
+            isActive: true,
+        },
+    });
+};
+
+
+const deactivationSession = async (data: UpdateSessionDto): Promise<void> => {
     await prismaClient.session.update({
         where: {
             id: data.id,
@@ -28,8 +42,27 @@ const updateSession = async (data: UpdateSessionDto): Promise<void> => {
     })
 }
 
+const updateSession = async (data: RefreshTokenSessionDto): Promise<void> => {
+    await prismaClient.session.update({
+        where: {
+            id: data.id,
+        },
+        data: {
+            isActive: data.isActive,
+            updatedAt: data.updatedAt,
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+        },
+    });
+};
+
+
+
+
 export const sessionsRepository = {
     createSession,
     findActiveSessionByUserId,
+    deactivationSession,
+    findActiveSessionByUserIdAndRefreshToken,
     updateSession
 }

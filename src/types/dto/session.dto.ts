@@ -1,4 +1,3 @@
-import {addListener} from "nodemon";
 
 export interface CreateSessionDto {
     userId: string;
@@ -11,5 +10,13 @@ export interface CreateSessionDto {
 export interface UpdateSessionDto {
     id: string;
     isActive: boolean;
+    updatedAt: Date;
+}
+
+export interface RefreshTokenSessionDto {
+    id: string;
+    isActive: boolean;
+    accessToken: string;
+    refreshToken: string;
     updatedAt: Date;
 }

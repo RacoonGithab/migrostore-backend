@@ -13,7 +13,7 @@ import {
     VERIFICATION_CODE_NOT_FOUND
 } from "../utils/constants/error.masseges";
 import {verificationCodesRepository} from "../repositories/verification-code.repository";
-import {TypeResendVerificationCode, TypeVerifyUser} from "../types/verify.user";
+import {TypeResendVerificationCode, TypeVerifyUser} from "../types/verify.user.types";
 import {endOfDay, startOfDay} from "date-fns";
 import {env} from "../config/secrets";
 import {verificationCodeService} from "./verification-code.service";
