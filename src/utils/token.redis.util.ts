@@ -1,6 +1,5 @@
 import {getRedisClient} from "../config/redis";
-import {tokenUtils} from "../utils/token.util";
-import {RefreshTokenPayload, TokenPayload} from "../types/dto/token.dto";
+import {tokenUtils} from "./token.util";
 
 const addJtiToBlacklist = async (jti: string, expirationTimeSec: number): Promise<void> => {
     const client = getRedisClient();
@@ -20,15 +19,14 @@ const checkIfJtiExistsInBlacklist = async (jti: string): Promise<boolean> => {
 };
 
 const blackListToken = async (token: string): Promise<void> => {
-    const payload = tokenUtils.verifyAccessToken(token) as (TokenPayload & { jti?: string; exp?: number }) |
-        (RefreshTokenPayload & { jti?: string; exp?: number });
-    if (payload?.jti && payload.exp) {
-        const expirationTimeSec = payload.exp - Math.floor(Date.now() / 1000);
-        await addJtiToBlacklist(payload.jti, expirationTimeSec);
+    const decodedToken = tokenUtils.decodeToken(token);
+    if (decodedToken && 'jti' in decodedToken && 'exp' in decodedToken && typeof decodedToken.exp === 'number') {
+        const expirationTimeSec = decodedToken.exp - Math.floor(Date.now() / 1000);
+        await addJtiToBlacklist(decodedToken.jti, expirationTimeSec);
     }
 }
 
-export const redisService = {
+export const tokenRedisUtil = {
     addJtiToBlacklist,
     isJtiBlacklisted,
     checkIfJtiExistsInBlacklist,

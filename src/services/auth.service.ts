@@ -10,8 +10,8 @@ import {usersRepository} from "../repositories/user.repository";
 import {sessionsRepository} from "../repositories/session.repository";
 import bcrypt from "bcryptjs";
 import {tokenUtils} from "../utils/token.util"
-import {TokenDto, TokenPayload} from "../types/dto/token.dto";
-import {redisService} from "./redis.service";
+import {TokenDto} from "../types/dto/token.dto";
+import {tokenRedisUtil} from "../utils/token.redis.util";
 
 
 const loginService = async (data: TypeLoginUser): Promise<TokenDto> => {
@@ -61,23 +61,31 @@ const logoutService = async (userId: string) => {
         });
 
         if (session.accessToken) {
-            await redisService.blackListToken(session.accessToken);
+            await tokenRedisUtil.blackListToken(session.accessToken);
         }
 
         if (session.refreshToken) {
-            await redisService.blackListToken(session.refreshToken)
+            await tokenRedisUtil.blackListToken(session.refreshToken)
         }
     }
 }
 
-const refreshAccessToken = async (refreshToken: string, userId: string, jti: string): Promise<TokenDto> => {
-    const session = await sessionsRepository.findActiveSessionByUserIdAndRefreshToken(userId, refreshToken);
+const refreshAccessToken = async (userId: string): Promise<TokenDto> => {
+    const session = await sessionsRepository.findActiveSessionByUserId(userId)
 
     if (!session || !session.isActive) {
         throw new ApiError(401, INVALID_TOKEN_HEADER);
     }
 
-    const oldAccessTokenJti = session.accessToken ? (tokenUtils.decodeToken(session.accessToken) as TokenPayload)?.jti : null;
+    const isAccessTokenValid = tokenUtils.verifyAccessToken(session.accessToken)
+
+    if (isAccessTokenValid) {
+        await tokenRedisUtil.blackListToken(session.accessToken);
+    }
+
+    if (session.refreshToken) {
+        await tokenRedisUtil.blackListToken(session.refreshToken)
+    }
 
     const user = await usersRepository.getUserById(userId);
     if (!user) {
@@ -94,13 +102,6 @@ const refreshAccessToken = async (refreshToken: string, userId: string, jti: str
         refreshToken: newTokenPair.refreshToken,
     });
 
-    if (oldAccessTokenJti) {
-        const oldAccessTokenExpiry = tokenUtils.getExpirationTime(session.accessToken);
-        if (oldAccessTokenExpiry) {
-            const expirationTimeSec = oldAccessTokenExpiry - Math.floor(Date.now() / 1000);
-            await redisService.addJtiToBlacklist(oldAccessTokenJti, expirationTimeSec);
-        }
-    }
 
     return newTokenPair;
 }

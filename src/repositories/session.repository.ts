@@ -16,19 +16,6 @@ const findActiveSessionByUserId = async (userId: string): Promise<Session | null
     });
 }
 
-const findActiveSessionByUserIdAndRefreshToken = async (
-    userId: string,
-    refreshToken: string
-): Promise<Session | null> => {
-    return prismaClient.session.findFirst({
-        where: {
-            userId: userId,
-            refreshToken: refreshToken,
-            isActive: true,
-        },
-    });
-};
-
 
 const deactivationSession = async (data: UpdateSessionDto): Promise<void> => {
     await prismaClient.session.update({
@@ -63,6 +50,5 @@ export const sessionsRepository = {
     createSession,
     findActiveSessionByUserId,
     deactivationSession,
-    findActiveSessionByUserIdAndRefreshToken,
     updateSession
 }

@@ -1,25 +1,23 @@
 import {Roles} from "@prisma/client";
 
-export interface TokenPayload {
+export interface TokenGenerationPayload {
+    userId: string;
+    role: Roles;
+}
+
+export interface AccessTokenPayload {
     userId: string;
     role: Roles
-    jti?: string;
-    exp?: number;
+    jti: string;
+}
+
+export interface RefreshTokenPayload {
+    userId: string;
+    jti: string;
 }
 
 export interface TokenDto {
     accessToken: string;
     refreshToken: string;
-}
-
-export interface RefreshTokenPayload {
-    userId: string;
-    jti?: string;
-    exp?: number;
-}
-
-export interface RequestTypeExtensionDto {
-    id: string;
-    role?: string
 }
 
