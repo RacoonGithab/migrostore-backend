@@ -19,7 +19,7 @@ import {env} from "../config/secrets";
 import {verificationCodeService} from "./verification-code.service";
 import {VerificationCodeType} from "@prisma/client";
 
-const registerUser = async (data: TypeRegisterUser):Promise<void> => {
+const registerUserService = async (data: TypeRegisterUser):Promise<void> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
 
     if (userDb) {
@@ -36,7 +36,7 @@ const registerUser = async (data: TypeRegisterUser):Promise<void> => {
     await verificationCodeService.createAndSendVerificationEmailCode(createdUser.id, createdUser.email);
 }
 
-const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
+const verifyUserService = async (data: TypeVerifyUser):Promise<void> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
 
     if (!userDb) {
@@ -79,7 +79,7 @@ const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
     })
 }
 
-const resendVerificationCode = async (data: TypeResendVerificationCode): Promise<void> => {
+const resendVerificationCodeService = async (data: TypeResendVerificationCode): Promise<void> => {
 
     const dbUser = await usersRepository.getUserByEmail(data.email);
 
@@ -116,9 +116,19 @@ const resendVerificationCode = async (data: TypeResendVerificationCode): Promise
 }
 
 
+const deleteUserService = async (userId:string):Promise<void> => {
+    const userDb = await usersRepository.getUserById(userId);
+
+    if (!userDb) {
+        throw new ApiError(404, USER_NOT_FOUND);
+    }
+
+    await usersRepository.deleteUserById(userId);
+}
 
 export const usersService = {
-    registerUser,
-    verifyUser,
-    resendVerificationCode
+    registerUserService,
+    verifyUserService,
+    resendVerificationCodeService,
+    deleteUserService
 } as const;

@@ -3,7 +3,7 @@ import {authService} from "../services/auth.service";
 
 const loginController = async (req: Request, res: Response) => {
     const { accessToken, refreshToken } = await authService.loginService(req.body)
-    res.status(201).json({accessToken, refreshToken, message:"Login successful"});
+    res.status(200).json({accessToken, refreshToken, message:"Login successful"});
 }
 
 const logoutController = async (req: Request, res: Response) => {
