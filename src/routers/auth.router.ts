@@ -7,10 +7,12 @@ import {
     accessTokenValidationMiddleware,
     refreshTokenValidationMiddleware
 } from "../middlewares/auth.validation.middleware";
+import {verifyUserSchema} from "../schemas/verify-user.schema";
 
 const authRouters = express.Router();
 
 authRouters.post("/login", validateRequestBody(loginSchema), catchAsync(authController.loginController));
+authRouters.post("/verify-login-code", validateRequestBody(verifyUserSchema), catchAsync(authController.verifyLoginCodeController))
 authRouters.post("/logout", accessTokenValidationMiddleware, authController.logoutController);
 authRouters.post("/refresh", refreshTokenValidationMiddleware, authController.refreshTokenController);
 

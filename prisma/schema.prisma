@@ -21,6 +21,7 @@ enum Roles {
 enum VerificationCodeType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
+  SECOND_FACTOR_LOGIN
 }
 
 model User {

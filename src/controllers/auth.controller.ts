@@ -6,6 +6,11 @@ const loginController = async (req: Request, res: Response) => {
     res.status(200).json({accessToken, refreshToken, message:"Login successful"});
 }
 
+const verifyLoginCodeController = async (req: Request, res: Response) => {
+    await authService.verifyLoginCodeLoginService(req.body)
+    res.status(200).json({message:"Sign in"})
+}
+
 const logoutController = async (req: Request, res: Response) => {
     await authService.logoutService(req.params.userId)
     res.status(200).json({message:"You are logged out"});
@@ -19,6 +24,7 @@ const refreshTokenController = async (req: Request, res: Response)=> {
 export const authController = {
     loginController,
     logoutController,
-    refreshTokenController
+    refreshTokenController,
+    verifyLoginCodeController
 } as const;
 
