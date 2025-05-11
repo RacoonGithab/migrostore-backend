@@ -2,11 +2,21 @@ import { Request } from "express";
 import ApiError from "../errors/ApiError";
 import { INVALID_AUTHORIZATION_HEADER, INVALID_TOKEN_HEADER } from "./constants/error.masseges";
 import { tokenRedisUtil } from "./token.redis.util";
-import {AccessTokenPayload, RefreshTokenPayload, TokenDto, TokenGenerationPayload} from "../types/dto/token.dto";
+import {
+    AccessTokenPayload,
+    RefreshTokenPayload,
+    ResetTokenPayload,
+    TokenDto,
+    TokenGenerationPayload
+} from "../types/dto/token.dto";
 import {v4 as uuidv4} from "uuid";
 import jwt from "jsonwebtoken";
 import {env} from "../config/secrets";
-import {ACCESS_TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN} from "./constants/token.constants";
+import {
+    ACCESS_TOKEN_EXPIRES_IN,
+    REFRESH_TOKEN_EXPIRES_IN,
+    RESET_PASSWORD_TOKEN_EXPIRES_IN
+} from "./constants/token.constants";
 import {PayloadTokenType, VerifyTokenFn} from "../types/auth.token.types";
 
 
@@ -19,6 +29,15 @@ const generateAccessToken = (payload: TokenGenerationPayload): string => {
     return jwt.sign(accessTokenPayload, env.JWT_ACCESS_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_IN });
 };
 
+const verifyAccessToken = (token: string): AccessTokenPayload | null => {
+    try {
+        return jwt.verify(token, env.JWT_ACCESS_SECRET) as AccessTokenPayload;
+    } catch (error) {
+        return null;
+    }
+}
+
+
 
 const generateRefreshToken = (payload: Pick<TokenGenerationPayload, 'userId'>): string => {
     const jti = uuidv4();
@@ -29,6 +48,15 @@ const generateRefreshToken = (payload: Pick<TokenGenerationPayload, 'userId'>): 
     return jwt.sign(refreshTokenPayload, env.JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
 };
 
+const verifyRefreshToken = (token: string): RefreshTokenPayload | null => {
+    try {
+        return jwt.verify(token, env.JWT_REFRESH_SECRET) as RefreshTokenPayload;
+    } catch (error) {
+        return null;
+    }
+}
+
+
 
 const generateTokenPair = (payload: TokenGenerationPayload): TokenDto => {
     const accessToken = generateAccessToken(payload);
@@ -37,21 +65,24 @@ const generateTokenPair = (payload: TokenGenerationPayload): TokenDto => {
 };
 
 
-const verifyAccessToken = (token: string): AccessTokenPayload | null => {
+
+const generatePasswordResetToken = (userId: string): string => {
+    const payload = {
+        userId: userId,
+        jti: uuidv4(),
+    };
+    return jwt.sign(payload, env.JWT_RESET_PASSWORD_SECRET, { expiresIn: RESET_PASSWORD_TOKEN_EXPIRES_IN });
+};
+
+const verifyPasswordResetToken = (token: string): ResetTokenPayload | null => {
     try {
-        return jwt.verify(token, env.JWT_ACCESS_SECRET) as AccessTokenPayload;
+        return jwt.verify(token, env.JWT_RESET_PASSWORD_SECRET) as ResetTokenPayload;
     } catch (error) {
         return null;
     }
 }
 
-const verifyRefreshToken = (token: string): RefreshTokenPayload | null => {
-    try {
-        return jwt.verify(token, env.JWT_REFRESH_SECRET) as RefreshTokenPayload;
-    } catch (error) {
-        return null;
-    }
-}
+
 
 const decodeToken = (token: string): AccessTokenPayload | RefreshTokenPayload | null => {
     try {
@@ -61,10 +92,12 @@ const decodeToken = (token: string): AccessTokenPayload | RefreshTokenPayload | 
     }
 }
 
+
+
 export const validateToken = async (
     req: Request,
     verifyFn: VerifyTokenFn,
-    _PayloadTokenType: 'access' | 'refresh'
+    _PayloadTokenType: 'access' | 'refresh' | 'reset_token',
 ): Promise<PayloadTokenType> => {
     const authHeader = req.headers.authorization;
 
@@ -95,4 +128,6 @@ export const tokenUtils = {
     verifyRefreshToken,
     validateToken,
     decodeToken,
+    generatePasswordResetToken,
+    verifyPasswordResetToken
 }

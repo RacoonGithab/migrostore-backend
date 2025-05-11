@@ -16,6 +16,11 @@ export interface RefreshTokenPayload {
     jti: string;
 }
 
+export interface ResetTokenPayload {
+    userId: string;
+    jti: string;
+}
+
 export interface TokenDto {
     accessToken: string;
     refreshToken: string;

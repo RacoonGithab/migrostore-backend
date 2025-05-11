@@ -1,6 +1,6 @@
 import {prismaClient} from "../config/prismaClient";
 import {User} from "@prisma/client";
-import {CreateUserDto, updateUserActivityStatusDto} from "../types/dto/users.dto";
+import {CreateUserDto, UpdateUserPasswordDto} from "../types/dto/users.dto";
 
 const createUser = async (data: CreateUserDto): Promise<User> => {
     return prismaClient.user.create({data});
@@ -41,10 +41,22 @@ const deleteUserById = async (id: string): Promise<void> => {
     await prismaClient.user.delete({where: {id: id}});
 }
 
+const updateUserPassword = async (data: UpdateUserPasswordDto): Promise<void> => {
+    await prismaClient.user.update({
+        where: {
+            id: data.userId
+        },
+        data: {
+            password: data.newPassword,
+        },
+    });
+};
+
 export const usersRepository = {
     createUser,
     getUserByEmail,
     updateUserByEmail,
     getUserById,
-    deleteUserById
+    deleteUserById,
+    updateUserPassword
 } as const;

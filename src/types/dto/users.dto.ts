@@ -6,7 +6,13 @@ export interface CreateUserDto {
     createdAt: Date;
 }
 
-export interface updateUserActivityStatusDto {
+export interface UpdateUserPasswordDto {
+    userId: string,
+    newPassword: string
+}
+
+export interface PasswordResetData {
     userId: string;
-    isActive: boolean;
+    newPassword: string;
+    resetToken: string;
 }

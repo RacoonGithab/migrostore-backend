@@ -1,0 +1,2 @@
+export const RESET_PASSWORD_WINDOW_SECONDS = 24 * 60 * 60;
+

@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from "express";
 import {tokenUtils} from "../utils/token.util";
-import {RefreshTokenPayload, AccessTokenPayload} from "../types/dto/token.dto";
+import {RefreshTokenPayload, AccessTokenPayload, ResetTokenPayload} from "../types/dto/token.dto";
 
 
 export const accessTokenValidationMiddleware = async (
@@ -27,6 +27,21 @@ export const refreshTokenValidationMiddleware = async (
         tokenUtils.verifyRefreshToken,
         'refresh'
     ) as RefreshTokenPayload;
+
+    req.params = { userId: payload.userId, jti: payload.jti };
+    next();
+}
+
+export const resetPasswordTokenValidationMiddleware = async (
+    req: Request & { user?: ResetTokenPayload },
+    _res: Response,
+    next: NextFunction
+): Promise<void> => {
+    const payload = await tokenUtils.validateToken(
+        req,
+        tokenUtils.verifyPasswordResetToken,
+        'reset_token'
+    ) as ResetTokenPayload;
 
     req.params = { userId: payload.userId, jti: payload.jti };
     next();

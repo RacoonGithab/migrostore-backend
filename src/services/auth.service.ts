@@ -2,7 +2,7 @@ import {
     ACTIVE_SESSION_EXISTS,
     EMAIL_NOT_VERIFIED,
     INCORRECT_PASSWORD,
-    INVALID_TOKEN_HEADER,
+    INVALID_TOKEN_HEADER, REQUEST_LIMIT_EXHAUSTED,
     USER_BLOCKED,
     USER_DOES_NOT_EXIST,
     USER_NOT_FOUND,
@@ -22,6 +22,12 @@ import {verificationCodeService} from "./verification-code.service";
 import {TypeVerifyUser} from "../types/verify.user.types";
 import {verificationCodesRepository} from "../repositories/verification-code.repository";
 import {VerificationCodeType} from "@prisma/client";
+import {
+    checkForgotPasswordRateLimitExceeded,
+    incrementForgotPasswordRequestCount
+} from "../utils/limiter.reset-password";
+import {createPasswordHash} from "../utils/auth.util";
+import {PasswordResetData} from "../types/dto/users.dto";
 
 
 const loginService = async (data: TypeLoginUser): Promise<TokenDto> => {
@@ -113,6 +119,89 @@ const verifyLoginCodeLoginService = async (data: TypeVerifyUser): Promise<void> 
     });
 }
 
+const initiatePasswordResetService = async (email: string): Promise<void> => {
+
+    if (await checkForgotPasswordRateLimitExceeded(email)) {
+        throw new ApiError(429, REQUEST_LIMIT_EXHAUSTED);
+    }
+
+    const userDb = await usersRepository.getUserByEmail(email);
+
+    if (!userDb) {
+        throw new ApiError(404, USER_NOT_FOUND);
+    }
+
+    if (!userDb.isVerified) {
+        throw new ApiError(403, EMAIL_NOT_VERIFIED)
+    }
+
+    if (userDb.isBlocked) {
+        throw new ApiError(403, USER_BLOCKED);
+    }
+
+    await verificationCodeService.createAndSendResetPasswordVerificationCode(userDb.id, email);
+
+    await incrementForgotPasswordRequestCount(email);
+
+}
+
+const verifyPasswordResetCodeService = async (data: TypeVerifyUser): Promise<string> => {
+    const userDb = await usersRepository.getUserByEmail(data.email);
+
+    if (!userDb) {
+        throw new ApiError(404, USER_NOT_FOUND);
+    }
+
+    const dbVerificationCode = await verificationCodesRepository.getLastActiveVerificationCode(
+        userDb.id,
+        VerificationCodeType.PASSWORD_RESET
+    );
+
+    if (!dbVerificationCode) {
+        throw new ApiError(404, VERIFICATION_CODE_NOT_FOUND);
+    }
+
+    if (data.verificationCode !== dbVerificationCode.verificationCode) {
+        throw new ApiError(400, VERIFICATION_CODE_MISMATCH);
+    }
+
+    if (new Date() > dbVerificationCode.expiredAt) {
+        throw new ApiError(400, VERIFICATION_CODE_EXPIRED);
+    }
+
+    await verificationCodesRepository.updateVerificationCodeById({
+        id: dbVerificationCode.id,
+        updatedAt: new Date(),
+    });
+
+    return tokenUtils.generatePasswordResetToken(userDb.id);
+}
+
+const passwordResetService = async (data: PasswordResetData): Promise<void> => {
+    const userDb = await usersRepository.getUserById(data.userId);
+
+    if (!userDb) {
+        throw new ApiError(404, USER_NOT_FOUND);
+    }
+
+    if (!userDb.isVerified) {
+        throw new ApiError(403, EMAIL_NOT_VERIFIED)
+    }
+
+    if (userDb.isBlocked) {
+        throw new ApiError(403, USER_BLOCKED);
+    }
+
+
+    await usersRepository.updateUserPassword({
+        userId: data.userId,
+        newPassword: await createPasswordHash(data.newPassword),
+    });
+
+    await tokenRedisUtil.blackListToken(data.resetToken)
+
+}
+
 const logoutService = async (userId: string) => {
     const session = await sessionsRepository.findActiveSessionByUserId(userId);
 
@@ -133,7 +222,7 @@ const logoutService = async (userId: string) => {
     }
 }
 
-const refreshAccessToken = async (userId: string): Promise<TokenDto> => {
+const refreshAccessTokenService = async (userId: string): Promise<TokenDto> => {
     const session = await sessionsRepository.findActiveSessionByUserId(userId)
 
     if (!session || !session.isActive) {
@@ -173,5 +262,8 @@ export const authService = {
     loginService,
     verifyLoginCodeLoginService,
     logoutService,
-    refreshAccessToken
+    refreshAccessTokenService,
+    initiatePasswordResetService,
+    verifyPasswordResetCodeService,
+    passwordResetService
 }

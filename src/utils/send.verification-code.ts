@@ -34,3 +34,18 @@ export const sendLoginVerificationCodeEmail = async (data: Pick<TypeLoginUser, "
         throw new ApiError(500, `Failed to send verification code to ${data.email}`);
     })
 }
+
+export const sendResetPasswordVerificationCode = async (data: Pick<TypeLoginUser, "email"> & {
+    verificationCode: string
+}): Promise<void> => {
+    const mailOptions = {
+        from: `"Код потверждения для смены пароля" <${env.EMAIL_HOST_USER}>`,
+        to: data.email,
+        subject: "Your verification code",
+        html: createHtmlTemplate(data.verificationCode),
+    }
+
+    await transporter.sendMail(mailOptions).catch((): void => {
+        throw new ApiError(500, `Failed to send verification code to ${data.email}`);
+    })
+}

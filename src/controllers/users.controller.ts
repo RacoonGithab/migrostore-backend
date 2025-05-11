@@ -9,7 +9,7 @@ const registerUsersController = async (req: Request, res: Response) => {
 
 const verifyUserController = async (req: Request, res: Response) => {
     await usersService.verifyUserService(req.body);
-    res.status(200).json({ message: "User verified" });
+    res.status(201).json({ message: "User verified" });
 }
 
 const resendVerificationCodeController = async (req: Request, res: Response) => {

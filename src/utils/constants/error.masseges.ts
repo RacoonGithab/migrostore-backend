@@ -13,4 +13,4 @@ export const VERIFICATION_CODE_LIMIT_REACHED = "Daily verification code limit re
 export const ACTIVE_SESSION_EXISTS = "A confirmation code has been sent to your email address to continue";
 export const INVALID_AUTHORIZATION_HEADER = "Unauthorized - Invalid Authorization header";
 export const INVALID_TOKEN_HEADER = "Unauthorized - Invalid token";
-export const USER_NOTFOUND = "User not found";
+export const REQUEST_LIMIT_EXHAUSTED = "Request limit exhausted";

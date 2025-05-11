@@ -10,8 +10,11 @@ import {accessTokenValidationMiddleware} from "../middlewares/auth.validation.mi
 const userRouters = express.Router();
 
 userRouters.post("/", validateRequestBody(registerUserSchema), catchAsync(usersController.registerUsersController));
+
 userRouters.post("/verified", validateRequestBody(verifyUserSchema), catchAsync(usersController.verifyUserController));
+
 userRouters.post("/verify/resend", validateRequestBody(resendVerificationCodeSchema), catchAsync(usersController.resendVerificationCodeController));
+
 userRouters.delete("/", accessTokenValidationMiddleware, catchAsync(usersController.deleteUsersController));
 
 export default userRouters;

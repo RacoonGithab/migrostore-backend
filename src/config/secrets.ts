@@ -20,5 +20,7 @@ export const env = {
     EMAIL_HOST_PASSWORD: process.env.EMAIL_HOST_PASSWORD as string | undefined,
     MAX_DAILY_VERIFICATION_CODES: parseInt(process.env.MAX_DAILY_VERIFICATION_CODES!),
     JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET as string,
-    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string,
+    JWT_RESET_PASSWORD_SECRET: process.env.JWT_RESET_PASSWORD_SECRET as string,
+    RESET_PASSWORD_MAX_REQUESTS: parseInt(process.env.RESET_PASSWORD_MAX_REQUESTS!),
 } as const;
