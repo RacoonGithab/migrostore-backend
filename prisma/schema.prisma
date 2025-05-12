@@ -37,12 +37,13 @@ model User {
 
   VerificationCode VerificationCode[] @relation("UserVerificationCode")
   Session          Session[]          @relation("UserSession")
+  Resume           Resume[]           @relation("UserResume")
 
   @@map("users")
 }
 
 model VerificationCode {
-  id               Int                  @id @default(autoincrement())
+  id               String               @id @default(uuid())
   userId           String               @map("user_id")
   verificationCode String               @map("verification_code")
   type             VerificationCodeType @map("type")
@@ -63,9 +64,62 @@ model Session {
   accessToken  String   @unique
   isActive     Boolean  @default(true) @map("is_active")
   createdAt    DateTime @map("created_at")
-  updatedAt    DateTime @updatedAt @map("apdated_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   user User @relation("UserSession", fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model Resume {
+  id             String   @id @default(uuid())
+  firstName      String   @map("first_name")
+  lastName       String   @map("last_name")
+  age            Int
+  education      String
+  workExperience String   @map("work_experience")
+  aboutMe        String   @map("about_me")
+  photo          String?
+  pdfUrl         String?
+  createdAt      DateTime @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  userId String
+  user   User   @relation("UserResume", fields: [userId], references: [id], onDelete: Cascade)
+
+  cityId String?
+  city   City?   @relation("ResumeCity", fields: [cityId], references: [id], onDelete: SetNull)
+
+  skills ResumeSkill[] @relation("ResumeSkills")
+
+  @@map("resumes")
+}
+
+model City {
+  id   String @id @default(uuid())
+  name String @unique
+
+  resumes Resume[] @relation("ResumeCity")
+
+  @@map("cities")
+}
+
+model Skill {
+  id   String @id @default(uuid())
+  name String @unique
+
+  resumes ResumeSkill[] @relation("ResumeSkills")
+
+  @@map("skills")
+}
+
+model ResumeSkill {
+  resumeId String
+  skillId  String
+
+  resume Resume @relation("ResumeSkills", fields: [resumeId], references: [id], onDelete: Cascade)
+  skill  Skill  @relation("ResumeSkills", fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([resumeId, skillId])
+  @@map("resume_skills")
 }
