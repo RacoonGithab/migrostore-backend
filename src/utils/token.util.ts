@@ -1,7 +1,7 @@
 import { Request } from "express";
-import ApiError from "../errors/ApiError";
-import { INVALID_AUTHORIZATION_HEADER, INVALID_TOKEN_HEADER } from "./constants/error.masseges";
-import { tokenRedisUtil } from "./token.redis.util";
+import ApiError from "../errors/api.error";
+import {error} from "./constants/error.masseges";
+import { tokenRedisUtil } from "./redis.token.util";
 import {
     AccessTokenPayload,
     RefreshTokenPayload,
@@ -102,20 +102,20 @@ export const validateToken = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith('Bearer ')) {
-        throw new ApiError(401, INVALID_AUTHORIZATION_HEADER);
+        throw new ApiError(401, error.INVALID_AUTHORIZATION_HEADER);
     }
 
     const token = authHeader.split(" ")[1];
     const payload = verifyFn(token);
 
     if (!payload) {
-        throw new ApiError(401, INVALID_TOKEN_HEADER);
+        throw new ApiError(401, error.INVALID_TOKEN_HEADER);
     }
 
     if (payload.jti) {
         const isBlacklisted = await tokenRedisUtil.isJtiBlacklisted(payload.jti);
         if (isBlacklisted) {
-            throw new ApiError(401, INVALID_TOKEN_HEADER);
+            throw new ApiError(401, error.INVALID_TOKEN_HEADER);
         }
     }
 

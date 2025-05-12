@@ -1,17 +1,8 @@
 import {usersRepository} from "../repositories/user.repository";
 import {TypeRegisterUser} from "../types/user.types";
-import {createPasswordHash} from "../utils/auth.util";
-import ApiError from "../errors/ApiError";
-import {
-    USER_ALREADY_EXISTS,
-    USER_ALREADY_VERIFIED,
-    USER_BLOCKED,
-    USER_NOT_FOUND,
-    VERIFICATION_CODE_EXPIRED,
-    VERIFICATION_CODE_LIMIT_REACHED,
-    VERIFICATION_CODE_MISMATCH,
-    VERIFICATION_CODE_NOT_FOUND
-} from "../utils/constants/error.masseges";
+import {createPasswordHash} from "../utils/create.password.hash";
+import ApiError from "../errors/api.error";
+import {error} from "../utils/constants/error.masseges";
 import {verificationCodesRepository} from "../repositories/verification-code.repository";
 import {TypeResendVerificationCode, TypeVerifyUser} from "../types/verify.user.types";
 import {endOfDay, startOfDay} from "date-fns";
@@ -19,11 +10,11 @@ import {env} from "../config/secrets";
 import {verificationCodeService} from "./verification-code.service";
 import {VerificationCodeType} from "@prisma/client";
 
-const registerUserService = async (data: TypeRegisterUser):Promise<void> => {
+const registerUser = async (data: TypeRegisterUser):Promise<void> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
 
     if (userDb) {
-        throw new ApiError(409, USER_ALREADY_EXISTS);
+        throw new ApiError(409, error.USER_ALREADY_EXISTS);
     }
 
     const createdUser = await usersRepository.createUser({
@@ -36,19 +27,19 @@ const registerUserService = async (data: TypeRegisterUser):Promise<void> => {
     await verificationCodeService.createAndSendVerificationEmailCode(createdUser.id, createdUser.email);
 }
 
-const verifyUserService = async (data: TypeVerifyUser):Promise<void> => {
+const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
 
     if (!userDb) {
-        throw new ApiError(404, USER_NOT_FOUND);
+        throw new ApiError(404, error.USER_NOT_FOUND);
     }
 
     if (userDb.isBlocked) {
-        throw new ApiError(403, USER_BLOCKED);
+        throw new ApiError(403, error.USER_BLOCKED);
     }
 
     if (userDb.isVerified) {
-        throw new ApiError(409, USER_ALREADY_VERIFIED);
+        throw new ApiError(409, error.USER_ALREADY_VERIFIED);
     }
 
     const dbVerificationCode = await verificationCodesRepository.getLastActiveVerificationCode(
@@ -57,15 +48,15 @@ const verifyUserService = async (data: TypeVerifyUser):Promise<void> => {
     );
 
     if (!dbVerificationCode) {
-        throw new ApiError(404, VERIFICATION_CODE_NOT_FOUND);
+        throw new ApiError(404, error.VERIFICATION_CODE_NOT_FOUND);
     }
 
     if (data.verificationCode !== dbVerificationCode.verificationCode) {
-        throw new ApiError(400, VERIFICATION_CODE_MISMATCH);
+        throw new ApiError(400, error.VERIFICATION_CODE_MISMATCH);
     }
 
     if (new Date() > dbVerificationCode.expiredAt) {
-        throw new ApiError(400, VERIFICATION_CODE_EXPIRED);
+        throw new ApiError(400, error.VERIFICATION_CODE_EXPIRED);
     }
 
     await usersRepository.updateUserByEmail({
@@ -79,20 +70,20 @@ const verifyUserService = async (data: TypeVerifyUser):Promise<void> => {
     })
 }
 
-const resendVerificationCodeService = async (data: TypeResendVerificationCode): Promise<void> => {
+const resendVerificationCode = async (data: TypeResendVerificationCode): Promise<void> => {
 
     const dbUser = await usersRepository.getUserByEmail(data.email);
 
     if (!dbUser) {
-        throw new ApiError(404, USER_NOT_FOUND);
+        throw new ApiError(404, error.USER_NOT_FOUND);
     }
 
     if (dbUser.isBlocked) {
-        throw new ApiError(403, USER_BLOCKED);
+        throw new ApiError(403, error.USER_BLOCKED);
     }
 
     if (dbUser.isVerified) {
-        throw new ApiError(409, USER_ALREADY_VERIFIED);
+        throw new ApiError(409, error.USER_ALREADY_VERIFIED);
     }
 
     const dbVerificationCodesToday = await verificationCodesRepository.getVerificationCodesTodayByUserId({
@@ -102,7 +93,7 @@ const resendVerificationCodeService = async (data: TypeResendVerificationCode): 
     });
 
     if (dbVerificationCodesToday.length >= env.MAX_DAILY_VERIFICATION_CODES) {
-        throw new ApiError(429, VERIFICATION_CODE_LIMIT_REACHED);
+        throw new ApiError(429, error.VERIFICATION_CODE_LIMIT_REACHED);
     }
 
     if (dbVerificationCodesToday.length > 0) {
@@ -116,19 +107,19 @@ const resendVerificationCodeService = async (data: TypeResendVerificationCode): 
 }
 
 
-const deleteUserService = async (userId:string):Promise<void> => {
+const deleteUser = async (userId:string):Promise<void> => {
     const userDb = await usersRepository.getUserById(userId);
 
     if (!userDb) {
-        throw new ApiError(404, USER_NOT_FOUND);
+        throw new ApiError(404, error.USER_NOT_FOUND);
     }
 
     await usersRepository.deleteUserById(userId);
 }
 
 export const usersService = {
-    registerUserService,
-    verifyUserService,
-    resendVerificationCodeService,
-    deleteUserService
+    registerUser,
+    verifyUser,
+    resendVerificationCode,
+    deleteUser
 } as const;

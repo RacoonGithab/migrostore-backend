@@ -2,7 +2,7 @@ import {transporter} from "../config/mail.transporter";
 import {env} from "../config/secrets"
 import {TypeLoginUser, TypeRegisterUser} from "../types/user.types";
 import {createHtmlTemplate} from "./create.html-template";
-import ApiError from "../errors/ApiError";
+import ApiError from "../errors/api.error";
 
 
 export const sendVerificationCodeEmail = async (data: Pick<TypeRegisterUser, "email"> & {

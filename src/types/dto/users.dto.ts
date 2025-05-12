@@ -10,9 +10,3 @@ export interface UpdateUserPasswordDto {
     userId: string,
     newPassword: string
 }
-
-export interface PasswordResetData {
-    userId: string;
-    newPassword: string;
-    resetToken: string;
-}

@@ -1,16 +1,18 @@
-export const USER_ALREADY_EXISTS = "User already exists";
-export const USER_DOES_NOT_EXIST = "User does not exist. Please register.";
-export const INCORRECT_PASSWORD = "Incorrect password";
-export const INTERNAL_SERVER_ERROR = "Internal server error";
-export const USER_NOT_FOUND = "User does not exist";
-export const USER_BLOCKED = "User is blocked";
-export const USER_ALREADY_VERIFIED = "User already verified";
-export const EMAIL_NOT_VERIFIED = "The user is not verified"
-export const VERIFICATION_CODE_NOT_FOUND = "Verification code does not exist";
-export const VERIFICATION_CODE_MISMATCH = "Verification code does not match";
-export const VERIFICATION_CODE_EXPIRED = "Verification code is expired";
-export const VERIFICATION_CODE_LIMIT_REACHED = "Daily verification code limit reached";
-export const ACTIVE_SESSION_EXISTS = "A confirmation code has been sent to your email address to continue";
-export const INVALID_AUTHORIZATION_HEADER = "Unauthorized - Invalid Authorization header";
-export const INVALID_TOKEN_HEADER = "Unauthorized - Invalid token";
-export const REQUEST_LIMIT_EXHAUSTED = "Request limit exhausted";
+export const error = {
+    USER_ALREADY_EXISTS: "User already exists",
+    USER_DOES_NOT_EXIST: "User does not exist. Please register.",
+    INCORRECT_PASSWORD: "Incorrect password",
+    INTERNAL_SERVER_ERROR: "Internal server error",
+    USER_NOT_FOUND: "User does not exist",
+    USER_BLOCKED: "User is blocked",
+    USER_ALREADY_VERIFIED: "User already verified",
+    EMAIL_NOT_VERIFIED: "The user is not verified",
+    VERIFICATION_CODE_NOT_FOUND: "Verification code does not exist",
+    VERIFICATION_CODE_MISMATCH: "Verification code does not match",
+    VERIFICATION_CODE_EXPIRED: "Verification code is expired",
+    VERIFICATION_CODE_LIMIT_REACHED: "Daily verification code limit reached",
+    ACTIVE_SESSION_EXISTS: "A confirmation code has been sent to your email address to continue",
+    INVALID_AUTHORIZATION_HEADER: "Unauthorized - Invalid Authorization header",
+    INVALID_TOKEN_HEADER: "Unauthorized - Invalid token",
+    REQUEST_LIMIT_EXHAUSTED: "Request limit exhausted"
+}

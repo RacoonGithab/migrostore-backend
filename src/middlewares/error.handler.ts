@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import ApiError from "../errors/ApiError";
-import {INTERNAL_SERVER_ERROR} from "../utils/constants/error.masseges";
+import ApiError from "../errors/api.error";
+import {error} from "../utils/constants/error.masseges";
 
 export const errorHandler = (
     err: Error,
@@ -12,6 +12,6 @@ export const errorHandler = (
         res.status(err.statusCode).json({ message: err.message });
     } else {
         console.error('Unhandled error:', err);
-        res.status(500).json({ error: INTERNAL_SERVER_ERROR });
+        res.status(500).json({ error: error.INTERNAL_SERVER_ERROR });
     }
 };

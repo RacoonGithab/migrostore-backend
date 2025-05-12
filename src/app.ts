@@ -1,7 +1,7 @@
 import express, {Express} from "express";
 import morgan from "morgan";
 import rootRouters from "./routers/root.router"
-import {errorHandler} from "./middlewares/errorHandler";
+import {errorHandler} from "./middlewares/error.handler";
 
 
 export const createApp = ():Express => {
