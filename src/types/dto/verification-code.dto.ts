@@ -15,6 +15,6 @@ export interface GetVerificationCodesDto {
 }
 
 export interface UpdateVerificationCodeDto {
-    id: number,
+    id: string,
     updatedAt: Date
 }

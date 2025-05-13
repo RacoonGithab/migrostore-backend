@@ -4,6 +4,7 @@ export const error = {
     INCORRECT_PASSWORD: "Incorrect password",
     INTERNAL_SERVER_ERROR: "Internal server error",
     USER_NOT_FOUND: "User does not exist",
+    NOT_FOUND: "Not found",
     USER_BLOCKED: "User is blocked",
     USER_ALREADY_VERIFIED: "User already verified",
     EMAIL_NOT_VERIFIED: "The user is not verified",
@@ -14,5 +15,6 @@ export const error = {
     ACTIVE_SESSION_EXISTS: "A confirmation code has been sent to your email address to continue",
     INVALID_AUTHORIZATION_HEADER: "Unauthorized - Invalid Authorization header",
     INVALID_TOKEN_HEADER: "Unauthorized - Invalid token",
-    REQUEST_LIMIT_EXHAUSTED: "Request limit exhausted"
+    REQUEST_LIMIT_EXHAUSTED: "Request limit exhausted",
+    FORBIDDEN: "Access is denied"
 }
