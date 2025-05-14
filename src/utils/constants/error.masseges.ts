@@ -16,5 +16,7 @@ export const error = {
     INVALID_AUTHORIZATION_HEADER: "Unauthorized - Invalid Authorization header",
     INVALID_TOKEN_HEADER: "Unauthorized - Invalid token",
     REQUEST_LIMIT_EXHAUSTED: "Request limit exhausted",
-    FORBIDDEN: "Access is denied"
+    FORBIDDEN: "Access is denied",
+    NOT_CITY_EXISTS: "City not found.",
+    NOT_SKILL_EXISTS: "Skill does not exist",
 }

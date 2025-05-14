@@ -14,8 +14,13 @@ const getCityByName = async (name: string): Promise<City | null> => {
     return prismaClient.city.findUnique({where: {name}})
 }
 
+const deleteCityById = async (id: string): Promise<City | null> => {
+    return prismaClient.city.delete({where: {id}});
+}
+
 export const cityRepository = {
     createCity,
     getCityById,
     getCityByName,
+    deleteCityById
 }

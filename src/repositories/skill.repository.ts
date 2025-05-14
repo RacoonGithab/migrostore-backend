@@ -14,8 +14,13 @@ const getSkillById = async (id: string): Promise<Skill | null> => {
     return prismaClient.skill.findUnique({ where: { id } });
 }
 
+const deleteSkillById = async (id: string): Promise<Skill | null> => {
+    return prismaClient.skill.delete({where: { id }});
+}
+
 export const skillRepository = {
     createSkill,
     getSkillByName,
     getSkillById,
+    deleteSkillById
 }

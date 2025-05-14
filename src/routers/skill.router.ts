@@ -8,6 +8,19 @@ import {createSkillSchema} from "../schemas/skill.schema";
 
 const skillRouter = express.Router();
 
-skillRouter.post("/", accessTokenValidation, requireRole('ADMIN'), validateRequestBody(createSkillSchema), catchAsync(skillController.createSkill));
+skillRouter.post(
+    "/",
+    accessTokenValidation,
+    requireRole('ADMIN'),
+    validateRequestBody(createSkillSchema),
+    catchAsync(skillController.createSkill)
+);
+
+skillRouter.delete(
+    "/",
+    accessTokenValidation,
+    requireRole('ADMIN'),
+    catchAsync(skillController.deleteSkill)
+);
 
 export default skillRouter

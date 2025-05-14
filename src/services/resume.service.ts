@@ -2,14 +2,15 @@ import {CreateResumeDto} from "../types/dto/resume.dto";
 import {cityRepository} from "../repositories/city.repository";
 import {skillRepository} from "../repositories/skill.repository";
 import {resumeRepository} from "../repositories/resume.repository";
-import {Resume} from "@prisma/client";
+import ApiError from "../errors/api.error";
+import {error} from "../utils/constants/error.masseges";
 
 
-const createResume = async (data: CreateResumeDto, userId: string): Promise<Resume | Error> => {
+const createResume = async (data: CreateResumeDto, userId: string): Promise<void> => {
     if (data.city) {
         const cityExist = await cityRepository.getCityByName(data.city);
         if (!cityExist) {
-            throw new Error(`City "${data.city}" not found.`)
+            throw new ApiError(404, error.NOT_CITY_EXISTS)
         }
     }
 
@@ -17,12 +18,12 @@ const createResume = async (data: CreateResumeDto, userId: string): Promise<Resu
     for (const skillName of data.skills) {
         const skill = await skillRepository.getSkillByName(skillName);
         if (!skill) {
-            throw new Error(`Skill "${skillName}" not found.`);
+            throw new ApiError(404, error.NOT_SKILL_EXISTS);
         }
         skillIds.push(skill.id);
     }
 
-    const resume = await resumeRepository.createResume({
+    await resumeRepository.createResume({
         firstName: data.firstName,
         lastName: data.lastName,
         age: data.age,
@@ -40,6 +41,8 @@ const createResume = async (data: CreateResumeDto, userId: string): Promise<Resu
         pdfUrl: data.pdfUrl,
         createdAt: new Date(),
     });
-
-    return resume;
 };
+
+export const resumeService = {
+    createResume,
+} as const;

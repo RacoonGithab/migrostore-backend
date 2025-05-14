@@ -4,4 +4,9 @@ export const regexPatterns = {
     VERIFICATION_CODE: /^\d{6}$/,
     CITY_NAME: /^[a-zA-Z0-9\s-]{2,50}$/,
     SKILL_NAME: /^[a-zA-Z0-9\s.]{2,100}$/,
+    FIRST_NAME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ']{2,50}$/,
+    LAST_NAME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ']{2,50}$/,
+    EDUCATION: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'-]{5,500}$/,
+    WORK_EXPERIENCE: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'"()-]{10,1000}$/,
+    ABOUT_ME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'"()\-!?;:]{20,2000}$/
 } as const;

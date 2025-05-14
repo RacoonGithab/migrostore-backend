@@ -8,6 +8,19 @@ import {createCitySchema} from "../schemas/city.schema";
 
 const cityRouter = express.Router();
 
-cityRouter.post("/", accessTokenValidation, requireRole('ADMIN'), validateRequestBody(createCitySchema), catchAsync(cityController.createCity));
+cityRouter.post(
+    "/",
+    accessTokenValidation,
+    requireRole('ADMIN'),
+    validateRequestBody(createCitySchema),
+    catchAsync(cityController.createCity)
+);
+
+cityRouter.delete(
+    "/",
+    accessTokenValidation,
+    requireRole('ADMIN'),
+    catchAsync(cityController.deleteCity)
+)
 
 export default cityRouter;
