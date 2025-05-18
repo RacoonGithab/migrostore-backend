@@ -10,4 +10,6 @@ const resumeRouter = express.Router();
 
 resumeRouter.post("/", accessTokenValidation, uploadMiddleware, validateRequestBody(createResumeSchema), catchAsync(resumeController.createResume));
 
+resumeRouter.get("/pdf/:resumeId", accessTokenValidation, catchAsync(resumeController.getResumeById))
+
 export default resumeRouter;

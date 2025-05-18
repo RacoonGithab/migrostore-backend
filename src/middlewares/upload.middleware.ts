@@ -12,7 +12,7 @@ export const uploadMiddleware = (req: Request, res: Response, next: NextFunction
         }
 
         if (req.file) {
-            req.body.photoBase64 = req.file.buffer.toString("base64");
+            req.body.photo = req.file.buffer.toString("base64");
         }
         next();
     });

@@ -13,7 +13,7 @@ export const accessTokenValidation = async (
         'access'
     ) as AccessTokenPayload;
 
-    req.params = { userId: payload.userId, role: payload.role };
+    req.params = { ...req.params, ...payload };
     next();
 }
 

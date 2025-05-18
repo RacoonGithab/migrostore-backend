@@ -82,7 +82,7 @@ model Resume {
   city           String?
   skills         String[]
   photo          String?
-  pdfUrl         String?
+  pdfFilename    String?
   createdAt      DateTime @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 

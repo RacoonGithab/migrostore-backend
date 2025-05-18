@@ -7,8 +7,8 @@ import {errorHandler} from "./middlewares/error.handler";
 export const createApp = ():Express => {
     const app = express();
     app.use(morgan("combined"))
-    app.use(express.json())
-    app.use(express.urlencoded({ extended: true }))
+    app.use(express.json({ limit: '5mb' }));
+    app.use(express.urlencoded({ extended: true, limit: '5mb' }));
     app.use("/api/v1", rootRouters)
     app.use(errorHandler)
     return app;
