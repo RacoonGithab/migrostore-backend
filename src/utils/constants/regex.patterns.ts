@@ -7,6 +7,6 @@ export const regexPatterns = {
     FIRST_NAME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ']{2,50}$/,
     LAST_NAME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ']{2,50}$/,
     EDUCATION: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'-]{5,500}$/,
-    WORK_EXPERIENCE: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'"()-]{10,1000}$/,
+    WORK_EXPERIENCE: /^[\s\S]{10,2000}$/,
     ABOUT_ME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'"()\-!?;:]{20,2000}$/
 } as const;

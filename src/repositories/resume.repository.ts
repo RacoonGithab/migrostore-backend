@@ -1,14 +1,10 @@
 import {Prisma, Resume} from "@prisma/client";
 import {prismaClient} from "../config/prismaClient";
-import {findResumeByIdAndUserIdDto} from "../types/dto/resume.dto";
+import {CreateResumeDto, findResumeByIdAndUserIdDto} from "../types/dto/resume.dto";
 
 
-export const createResume = async (data: Prisma.ResumeCreateInput, tx?: Prisma.TransactionClient): Promise<Resume> => {
-    const prisma = tx || prismaClient;
-
-    return prisma.resume.create({
-        data: data,
-    });
+export const createResume = async (data: CreateResumeDto): Promise<Resume> => {
+    return prismaClient.resume.create({data});
 };
 
 const findResumeByIdAndUserId = async (data: findResumeByIdAndUserIdDto): Promise<Resume | null> => {
@@ -20,18 +16,9 @@ const findResumeByIdAndUserId = async (data: findResumeByIdAndUserIdDto): Promis
         });
 }
 
-export const updateResumePdfFilename = async (resumeId: string, pdfFilename: string): Promise<Resume> => {
-    return prismaClient.resume.update({
-        where: { id: resumeId },
-        data: {
-            pdfFilename: pdfFilename,
-        },
-    });
-};
 
 
 export const resumeRepository = {
     createResume,
     findResumeByIdAndUserId,
-    updateResumePdfFilename
 }

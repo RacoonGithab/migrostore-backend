@@ -7,11 +7,11 @@ import { Readable } from 'stream';
 import {generateResumeFilePath} from "../utils/storage/storage.utils";
 import {validateCity} from "./city.service";
 import {validateSkills} from "./skill.service";
-import {generateAndSaveResumePdf} from "./resume.pdf.service";
+import {generateResumePdf} from "../utils/generate.resume.pdf";
+import {uploadFileToStorage} from "../utils/storage/upload.file.to.storage";
 
 
 const createResume = async (data: CreateResumeDto, userId: string): Promise<void> => {
-
     await validateCity(data.city);
 
     const skillNames = await validateSkills(data.skills);
@@ -24,25 +24,23 @@ const createResume = async (data: CreateResumeDto, userId: string): Promise<void
             education: data.education,
             workExperience: data.workExperience,
             aboutMe: data.aboutMe,
-            user: {
-                connect: {
-                    id: userId,
-                },
-            },
+            userId: userId,
             city: data.city,
             skills: skillNames,
             createdAt: new Date(),
+            updatedAt: new Date(),
         });
 
-    if (!resume) {
-        throw new ApiError(500, "Failed to create resume in database");
+    if (!resume || !resume.id) {
+        throw new ApiError(404, error.NOT_FOUND);
     }
 
-    const pdfFilename = await generateAndSaveResumePdf(data, userId, resume.id);
-
-    if (pdfFilename) {
-        await resumeRepository.updateResumePdfFilename(resume.id, pdfFilename);
+    const pdfBuffer = await generateResumePdf(data);
+    if (!pdfBuffer) {
+        throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
     }
+
+    await uploadFileToStorage({ buffer: pdfBuffer, userId: userId, filename: resume.id });
 }
 
 const getResumeById = async (data: findResumeByIdAndUserIdDto): Promise<Readable> => {
@@ -51,8 +49,8 @@ const getResumeById = async (data: findResumeByIdAndUserIdDto): Promise<Readable
         throw new ApiError(404, error.NOT_FOUND);
     }
 
-    if (resumeDb.pdfFilename) {
-        const filePath = generateResumeFilePath(data.userId, resumeDb.pdfFilename);
+    if (resumeDb.id) {
+        const filePath = generateResumeFilePath(data.userId, resumeDb.id);
         return await getPdfFileFromStorage(filePath);
     }
     throw new ApiError(404, error.NOT_FOUND);

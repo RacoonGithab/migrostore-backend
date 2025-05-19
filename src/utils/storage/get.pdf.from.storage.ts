@@ -5,9 +5,9 @@ import {Readable} from "stream";
 
 
 export const getPdfFileFromStorage = async (filePath: string): Promise<Readable> => {
-    const bucket = getBucket(); // Отримуємо посилання на бакет за замовчуванням
+    const bucket = getBucket();
 
-    const file = bucket.file(filePath); // filePath вже є шляхом всередині бакету
+    const file = bucket.file(filePath);
 
     const [exists] = await file.exists();
     if (!exists) {

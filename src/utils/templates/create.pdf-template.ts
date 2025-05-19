@@ -10,69 +10,81 @@ export const createResumeHtmlTemplate = (data: GeneratePdfResumeDto): string => 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Roboto', Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #fdfbfb, #ebedee);
+            color: #2c3e50;
+            padding: 40px;
             max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            margin: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
         }
         h1 {
+            font-size: 36px;
             text-align: center;
-            font-size: 32px;
-            margin-bottom: 20px;
-            color: #222;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2980b9;
+            padding-bottom: 10px;
+            letter-spacing: 1px;
         }
         .container {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            gap: 20px;
         }
         .info {
             flex: 1;
         }
         .photo img {
-            max-width: 150px;
+            max-width: 140px;
             height: auto;
-            border-radius: 10px;
-            border: 2px solid #ddd;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         h2 {
             font-size: 20px;
-            margin-bottom: 10px;
-            color: #444;
+            margin-bottom: 8px;
+            color: #34495e;
         }
         p {
-            margin: 0 0 10px;
+            margin: 0 0 5px;
         }
         .section {
+            background: #ffffff;
+            padding: 20px;
             margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            transition: background 0.3s ease;
+        }
+        .section:hover {
+            background: #f2f6f9;
         }
         .section h2 {
-            margin-bottom: 5px;
-        }
-        .section:last-child {
-            margin-bottom: 0;
-        }
-        .page-break {
-            page-break-before: always;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
         .skills {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
         }
-        .skill {
-            background-color: #007bff;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
+        skill {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            padding: 6px 14px;
             font-size: 14px;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+        .skill:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -98,6 +110,11 @@ export const createResumeHtmlTemplate = (data: GeneratePdfResumeDto): string => 
         <img src="data:image/jpeg;base64,${data.photo}" alt="User Photo">
     </div>
 </div>
+<div class="section">
+    <h2>Навыки:</h2>
+    <div class="skills">
+        ${data.skills.map(skill => `<span class="skill">${skill}</span>`).join('')}
+</div>
 
 <div class="section">
     <h2>Образование:</h2>
@@ -106,18 +123,12 @@ export const createResumeHtmlTemplate = (data: GeneratePdfResumeDto): string => 
 
 <div class="section">
     <h2>Опыт работы:</h2>
-    <p>${data.workExperience}</p>
+    <p>${data.workExperience.replace(/\n/g, '<br>')}</p>
 </div>
 
 <div class="section">
     <h2>О себе:</h2>
-    <p>${data.aboutMe}</p>
-</div>
-
-<div class="section">
-    <h2>Навыки:</h2>
-    <div class="skills">
-        ${data.skills.map(skill => `<span class="skill">${skill}</span>`).join('')}
+    <p>${data.aboutMe.replace(/\n/g, '<br>')}</p>
 </div>
 
 </body>

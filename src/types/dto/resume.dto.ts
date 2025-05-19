@@ -8,7 +8,6 @@ export interface CreateResumeDto {
     userId: string;
     city: string;
     skills: string[];
-    pdfFilename?: string;
     updatedAt: Date;
     createdAt: Date;
 }
@@ -32,7 +31,7 @@ export interface GeneratePdfResumeDto {
 export interface UploadResumeToStorageDto {
     buffer: Buffer;
     userId: string;
-    resumeId: string;
+    filename: string;
 }
 
 export interface findResumeByIdAndUserIdDto {

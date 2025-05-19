@@ -1,12 +1,11 @@
 import {getBucket} from "../../config/firebase";
 import {UploadResumeToStorageDto} from "../../types/dto/resume.dto";
-import { v4 as uuidv4 } from 'uuid';
 
 export const uploadFileToStorage = async (data: UploadResumeToStorageDto): Promise<string> => {
     const bucket = getBucket();
 
-    const filename = `${uuidv4()}.pdf`;
-    const destination = `resumes/${data.userId}/${filename}`;
+    const filename = data.filename;
+    const destination = `resumes/${data.userId}/${filename}.pdf`;
 
     const file = bucket.file(destination);
 
