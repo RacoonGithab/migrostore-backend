@@ -8,10 +8,10 @@ const createResume = async (req: Request, res: Response) => {
     res.status(201).json({message: "Resume created successfully"});
 }
 
-const getResumeById = async (req: Request, res: Response) => {
+const getResumeByIdAndUserId = async (req: Request, res: Response) => {
     const { resumeId, userId } = req.params;
 
-    const fileStream = await resumeService.getResumeById({userId, resumeId});
+    const fileStream = await resumeService.getResumeByIdAndUserId({userId, resumeId});
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="resume-${resumeId}.pdf"`); // або attachment; для збереження
@@ -20,7 +20,14 @@ const getResumeById = async (req: Request, res: Response) => {
 }
 
 
+const getUserResumesById = async (req: Request, res: Response) => {
+    const resumes = await resumeService.getResumesUserById(req.params.userId)
+    res.status(200).json(resumes);
+}
+
+
 export const resumeController = {
     createResume,
-    getResumeById
+    getResumeByIdAndUserId,
+    getUserResumesById
 }

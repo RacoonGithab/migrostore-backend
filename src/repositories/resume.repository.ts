@@ -1,6 +1,6 @@
-import {Prisma, Resume} from "@prisma/client";
+import {Resume} from "@prisma/client";
 import {prismaClient} from "../config/prismaClient";
-import {CreateResumeDto, findResumeByIdAndUserIdDto} from "../types/dto/resume.dto";
+import {CreateResumeDto, findResumeByIdAndUserIdDto, UserResumeByIdDto} from "../types/dto/resume.dto";
 
 
 export const createResume = async (data: CreateResumeDto): Promise<Resume> => {
@@ -17,8 +17,20 @@ const findResumeByIdAndUserId = async (data: findResumeByIdAndUserIdDto): Promis
 }
 
 
+const getResumesUserById = async (userId: string): Promise<UserResumeByIdDto[]> => {
+    return prismaClient.resume.findMany({
+        where: {userId},
+        select: {
+            id: true,
+            skills: true,
+            city: true,
+        },
+    });
+}
+
 
 export const resumeRepository = {
     createResume,
     findResumeByIdAndUserId,
+    getResumesUserById
 }

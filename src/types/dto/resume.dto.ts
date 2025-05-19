@@ -38,3 +38,9 @@ export interface findResumeByIdAndUserIdDto {
     userId: string,
     resumeId: string,
 }
+
+export interface UserResumeByIdDto {
+    id: string;
+    skills: string[];
+    city: string | null;
+}

@@ -1,4 +1,4 @@
-import {CreateResumeDto, findResumeByIdAndUserIdDto} from "../types/dto/resume.dto";
+import {CreateResumeDto, findResumeByIdAndUserIdDto, UserResumeByIdDto} from "../types/dto/resume.dto";
 import {resumeRepository} from "../repositories/resume.repository";
 import ApiError from "../errors/api.error";
 import {error} from "../utils/constants/error.masseges";
@@ -43,7 +43,7 @@ const createResume = async (data: CreateResumeDto, userId: string): Promise<void
     await uploadFileToStorage({ buffer: pdfBuffer, userId: userId, filename: resume.id });
 }
 
-const getResumeById = async (data: findResumeByIdAndUserIdDto): Promise<Readable> => {
+const getResumeByIdAndUserId = async (data: findResumeByIdAndUserIdDto): Promise<Readable> => {
     const resumeDb = await resumeRepository.findResumeByIdAndUserId(data);
     if (!resumeDb) {
         throw new ApiError(404, error.NOT_FOUND);
@@ -56,7 +56,18 @@ const getResumeById = async (data: findResumeByIdAndUserIdDto): Promise<Readable
     throw new ApiError(404, error.NOT_FOUND);
 };
 
+
+const getResumesUserById = async (userId: string): Promise<UserResumeByIdDto[]> => {
+    const resumeDb = await resumeRepository.getResumesUserById(userId);
+
+    if (!resumeDb) {
+        throw new ApiError(404, error.NOT_FOUND);
+    }
+    return resumeDb;
+}
+
 export const resumeService = {
     createResume,
-    getResumeById
+    getResumeByIdAndUserId,
+    getResumesUserById
 } as const;
