@@ -44,3 +44,14 @@ export interface UserResumeByIdDto {
     skills: string[];
     city: string | null;
 }
+
+export interface getResumeRedisCacheDto {
+    userId: string,
+    resumeId: string,
+}
+
+export interface setCachedResumePdfDto {
+    userId: string,
+    resumeId: string,
+    pdfBuffer: Buffer
+}

@@ -1,14 +1,19 @@
-import {CreateResumeDto, findResumeByIdAndUserIdDto, UserResumeByIdDto} from "../types/dto/resume.dto";
+import {
+    CreateResumeDto,
+    findResumeByIdAndUserIdDto,
+    UserResumeByIdDto
+} from "../types/dto/resume.dto";
 import {resumeRepository} from "../repositories/resume.repository";
 import ApiError from "../errors/api.error";
 import {error} from "../utils/constants/error.masseges";
-import {getPdfFileFromStorage} from "../utils/storage/get.pdf.from.storage";
+import {bufferToStream, getPdfFileFromStorage} from "../utils/storage/get.pdf.from.storage";
 import { Readable } from 'stream';
 import {generateResumeFilePath} from "../utils/storage/storage.utils";
 import {validateCity} from "./city.service";
 import {validateSkills} from "./skill.service";
 import {generateResumePdf} from "../utils/generate.resume.pdf";
 import {uploadFileToStorage} from "../utils/storage/upload.file.to.storage";
+import {redisResumeUtils} from "../utils/redis.resume.util";
 
 
 const createResume = async (data: CreateResumeDto, userId: string): Promise<void> => {
@@ -44,16 +49,28 @@ const createResume = async (data: CreateResumeDto, userId: string): Promise<void
 }
 
 const getResumeByIdAndUserId = async (data: findResumeByIdAndUserIdDto): Promise<Readable> => {
+    const cachedStream = await redisResumeUtils.getCachedResumePdf({ userId: data.userId, resumeId: data.resumeId });
+
+    if (cachedStream) {
+        return cachedStream;
+    }
+
     const resumeDb = await resumeRepository.findResumeByIdAndUserId(data);
     if (!resumeDb) {
         throw new ApiError(404, error.NOT_FOUND);
     }
 
-    if (resumeDb.id) {
-        const filePath = generateResumeFilePath(data.userId, resumeDb.id);
-        return await getPdfFileFromStorage(filePath);
+    const filePath = generateResumeFilePath(data.userId, resumeDb.id);
+
+    const pdfBuffer = await getPdfFileFromStorage(filePath);
+
+    if (!pdfBuffer) {
+        throw new ApiError(500, "Не удалось получить PDF-буфер из хранилища.");
     }
-    throw new ApiError(404, error.NOT_FOUND);
+
+    await redisResumeUtils.setCachedResumePdf({ userId: data.userId, resumeId: data.resumeId, pdfBuffer: pdfBuffer });
+
+    return bufferToStream(pdfBuffer);
 };
 
 

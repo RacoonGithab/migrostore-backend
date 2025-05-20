@@ -4,7 +4,7 @@ import {error} from "../constants/error.masseges";
 import {Readable} from "stream";
 
 
-export const getPdfFileFromStorage = async (filePath: string): Promise<Readable> => {
+export const getPdfFileFromStorage = async (filePath: string): Promise<Buffer> => {
     const bucket = getBucket();
 
     const file = bucket.file(filePath);
@@ -14,5 +14,14 @@ export const getPdfFileFromStorage = async (filePath: string): Promise<Readable>
         throw new ApiError(404, error.NOT_FOUND);
     }
 
-    return file.createReadStream();
+    const [buffer] = await file.download();
+
+    return buffer;
+};
+
+export const bufferToStream = (buffer: Buffer): Readable => {
+    const stream = new Readable();
+    stream.push(buffer);
+    stream.push(null);
+    return stream;
 };
