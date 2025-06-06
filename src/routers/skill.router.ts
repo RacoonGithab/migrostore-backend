@@ -17,7 +17,7 @@ skillRouter.post(
 );
 
 skillRouter.delete(
-    "/",
+    "/:skillId",
     accessTokenValidation,
     requireRole('ADMIN'),
     catchAsync(skillController.deleteSkill)

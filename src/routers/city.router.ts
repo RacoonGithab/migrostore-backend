@@ -17,7 +17,7 @@ cityRouter.post(
 );
 
 cityRouter.delete(
-    "/",
+    "/:cityId",
     accessTokenValidation,
     requireRole('ADMIN'),
     catchAsync(cityController.deleteCity)

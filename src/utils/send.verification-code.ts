@@ -1,51 +1,23 @@
 import {transporter} from "../config/mail.transporter";
 import {env} from "../config/secrets"
-import {TypeLoginUser, TypeRegisterUser} from "../types/user.types";
 import {createHtmlTemplate} from "./templates/create.html-template";
 import ApiError from "../errors/api.error";
 
 
-export const sendVerificationCodeEmail = async (data: Pick<TypeRegisterUser, "email"> & {
-    verificationCode: string
-}): Promise<void> => {
+export const sendVerificationEmail = async (
+    toEmail: string,
+    verificationCode: string,
+    mailSubject: string,
+    fromName: string
+): Promise<void> => {
     const mailOptions = {
-        from: `"Код подтверждение" <${env.EMAIL_HOST_USER}>`,
-        to: data.email,
-        subject: "Your verification code",
-        html: createHtmlTemplate(data.verificationCode),
-    }
+        from: `"${fromName}" <${env.EMAIL_HOST_USER}>`,
+        to: toEmail,
+        subject: mailSubject,
+        html: createHtmlTemplate(verificationCode),
+    };
 
     await transporter.sendMail(mailOptions).catch((): void => {
-        throw new ApiError(500, `Failed to send verification code to ${data.email}`);
+        throw new ApiError(500, `Failed to send verification email to ${toEmail}`);
     });
-}
-
-export const sendLoginVerificationCodeEmail = async (data: Pick<TypeLoginUser, "email"> & {
-    verificationCode: string
-}): Promise<void> => {
-    const mailOptions = {
-        from: `"Код подтверждение повторного входа" <${env.EMAIL_HOST_USER}>`,
-        to: data.email,
-        subject: "Your verification code",
-        html: createHtmlTemplate(data.verificationCode),
-    }
-
-    await transporter.sendMail(mailOptions).catch((): void => {
-        throw new ApiError(500, `Failed to send verification code to ${data.email}`);
-    })
-}
-
-export const sendResetPasswordVerificationCode = async (data: Pick<TypeLoginUser, "email"> & {
-    verificationCode: string
-}): Promise<void> => {
-    const mailOptions = {
-        from: `"Код потверждения для смены пароля" <${env.EMAIL_HOST_USER}>`,
-        to: data.email,
-        subject: "Your verification code",
-        html: createHtmlTemplate(data.verificationCode),
-    }
-
-    await transporter.sendMail(mailOptions).catch((): void => {
-        throw new ApiError(500, `Failed to send verification code to ${data.email}`);
-    })
-}
+};

@@ -3,12 +3,15 @@ import {skillService} from "../services/skill.service";
 import {skillRepository} from "../repositories/skill.repository";
 
 const createSkill = async (req: Request, res: Response) => {
-    await skillService.createSkill(req.body.name);
+    const {userId} = req.params;
+    const {name} = req.body;
+    await skillService.createSkill({name, userId});
     res.status(201).send({message: "Skill created successfully."});
 }
 
 const deleteSkill = async (req: Request, res: Response) => {
-    await skillRepository.deleteSkillById(req.params.id)
+    const {skillId, userId} = req.params;
+    await skillService.deleteSkill({skillId, userId})
     res.status(204).send({message: "Skill deleted successfully."});
 }
 

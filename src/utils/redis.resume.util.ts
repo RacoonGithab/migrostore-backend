@@ -1,36 +1,24 @@
 import {getRedisClient} from "../config/redis";
-import {getResumeRedisCacheDto, setCachedResumePdfDto} from "../types/dto/resume.dto";
-import {bufferToStream} from "./storage/get.pdf.from.storage";
-import {PDF_CACHE_TTL_SECONDS} from "./constants/redis.constants";
-import {Readable} from "stream";
+import {redisConstants} from "./constants/redis.constants";
 
+export const checkAndIncrementDailyResumeCount = async (
+    userId: string,
+): Promise<number> => {
+    const key = redisConstants.USER_DAILY_RESUME_COUNT(userId);
+    const expirationInSeconds = redisConstants.ONE_DAY_IN_SECONDS;
+    const redisClient = getRedisClient();
 
-const getCachedResumePdf = async (data: getResumeRedisCacheDto): Promise<Readable | null> => {
-    const redis = getRedisClient();
-    const cacheKey = `resume_pdf:${data.userId}:${data.resumeId}`;
+    const result = await redisClient.multi()
+        .incr(key)
+        .expire(key, expirationInSeconds)
+        .exec();
 
-    const cachedPdfBuffer = await redis.getBuffer(cacheKey);
-
-    if (cachedPdfBuffer) {
-        await redis.expire(cacheKey, PDF_CACHE_TTL_SECONDS);
-        return bufferToStream(cachedPdfBuffer);
-    } else {
-        return null;
+    if (!result || !result[0]) {
+        throw new Error("Redis transaction did not return expected results.");
     }
+
+    const currentCount = result[0][1] as number;
+
+    console.log(`User ${userId} daily resume count incremented to: ${currentCount}`);
+    return currentCount;
 };
-
-
-const setCachedResumePdf = async (data: setCachedResumePdfDto): Promise<void> => {
-    const redis = getRedisClient();
-    const cacheKey = `resume_pdf:${data.userId}:${data.resumeId}`;
-
-    console.log(`[setCachedResumePdf] Caching PDF in Redis for key: ${cacheKey}`);
-    await redis.setex(cacheKey, PDF_CACHE_TTL_SECONDS, data.pdfBuffer);
-};
-
-
-
-export const redisResumeUtils = {
-    getCachedResumePdf,
-    setCachedResumePdf,
-}

@@ -2,7 +2,7 @@ import {prismaClient} from "../config/prismaClient";
 import {Skill} from "@prisma/client";
 
 
-const createSkill = async (name: string): Promise<Skill> => {
+const createSkillByName = async (name: string): Promise<Skill> => {
     return prismaClient.skill.create({data: {name}});
 }
 
@@ -29,7 +29,7 @@ const deleteSkillById = async (id: string): Promise<Skill | null> => {
 }
 
 export const skillRepository = {
-    createSkill,
+    createSkillByName,
     getSkillsByNames,
     getSkillById,
     deleteSkillById,

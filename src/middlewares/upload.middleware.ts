@@ -10,10 +10,6 @@ export const uploadMiddleware = (req: Request, res: Response, next: NextFunction
         if (err) {
             return res.status(400).json({ error: err.message });
         }
-
-        if (req.file) {
-            req.body.photo = req.file.buffer.toString("base64");
-        }
         next();
     });
 };

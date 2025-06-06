@@ -1,6 +1,6 @@
-import {GeneratePdfResumeDto} from "../../types/dto/resume.dto";
+import {PdfTemplateDataDto} from "../../types/dto/resume.dto";
 
-export const createResumeHtmlTemplate = (data: GeneratePdfResumeDto): string => {
+export const createResumeHtmlTemplate = (data: PdfTemplateDataDto): string => {
     return `
 <!DOCTYPE html>
 <html lang="ru">
@@ -45,6 +45,11 @@ export const createResumeHtmlTemplate = (data: GeneratePdfResumeDto): string => 
             border: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+        .placeholder-photo-svg {
+            width: 80px; 
+            height: 80px;
+            fill: #95a5a6;
+        }
         h2 {
             font-size: 20px;
             margin-bottom: 8px;
@@ -74,7 +79,7 @@ export const createResumeHtmlTemplate = (data: GeneratePdfResumeDto): string => 
             flex-wrap: wrap;
             gap: 10px;
         }
-        skill {
+        .skill {
             background: linear-gradient(to right, #3498db, #2980b9);
             padding: 6px 14px;
             font-size: 14px;
@@ -107,7 +112,13 @@ export const createResumeHtmlTemplate = (data: GeneratePdfResumeDto): string => 
         </div>
    </div>
     <div class="photo">
-        <img src="data:image/jpeg;base64,${data.photo}" alt="User Photo">
+        ${data.photoUrl ? `
+            <img src="${data.photoUrl}" alt="User Photo">
+        ` : `
+            <svg class="placeholder-photo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                <path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464l349.5 0c-8.9-63.3-63.3-112-129-112l-91.4 0c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z"/>
+            </svg>
+        `}
     </div>
 </div>
 <div class="section">
@@ -118,17 +129,17 @@ export const createResumeHtmlTemplate = (data: GeneratePdfResumeDto): string => 
 
 <div class="section">
     <h2>Образование:</h2>
-    <p>${data.education}</p>
+    <p>${data.education || ''}</p>
 </div>
 
 <div class="section">
     <h2>Опыт работы:</h2>
-    <p>${data.workExperience.replace(/\n/g, '<br>')}</p>
+    <p>${(data.workExperience || '').replace(/\n/g, '<br>')}</p>
 </div>
 
 <div class="section">
     <h2>О себе:</h2>
-    <p>${data.aboutMe.replace(/\n/g, '<br>')}</p>
+    <p>${(data.aboutMe || '').replace(/\n/g, '<br>')}</p>
 </div>
 
 </body>

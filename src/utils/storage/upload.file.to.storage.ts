@@ -1,18 +1,25 @@
 import {getBucket} from "../../config/firebase";
-import {UploadResumeToStorageDto} from "../../types/dto/resume.dto";
+import {UploadFileToStorageDto} from "../../types/dto/resume.dto";
+import {generateFilePath} from "./generate.file.path";
 
-export const uploadFileToStorage = async (data: UploadResumeToStorageDto): Promise<string> => {
+
+export const uploadFileToStorage = async (data: UploadFileToStorageDto): Promise<string> => {
     const bucket = getBucket();
 
-    const filename = data.filename;
-    const destination = `resumes/${data.userId}/${filename}.pdf`;
+    const destination = generateFilePath(
+        {
+            userId: data.userId,
+            resumeId: data.resumeId,
+            originalFilename: data.filename
+        }
+    );
 
     const file = bucket.file(destination);
 
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
         const stream = file.createWriteStream({
             metadata: {
-                contentType: 'application/pdf',
+                contentType: data.contentType || 'application/octet-stream',
             },
             resumable: false,
         });
@@ -21,6 +28,6 @@ export const uploadFileToStorage = async (data: UploadResumeToStorageDto): Promi
         stream.end(data.buffer);
     });
 
-    return filename;
+    return destination;
 };
 

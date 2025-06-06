@@ -1,0 +1,1 @@
+export const MAX_TOTAL_RESUMES = 5;

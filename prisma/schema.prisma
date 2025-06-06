@@ -72,7 +72,7 @@ model Session {
 }
 
 model Resume {
-  id             String   @id @default(uuid())
+  id             String   @id
   firstName      String   @map("first_name")
   lastName       String   @map("last_name")
   age            Int

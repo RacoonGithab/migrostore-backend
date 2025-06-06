@@ -7,8 +7,10 @@ import {verificationCodesRepository} from "../repositories/verification-code.rep
 import {TypeResendVerificationCode, TypeVerifyUser} from "../types/verify.user.types";
 import {endOfDay, startOfDay} from "date-fns";
 import {env} from "../config/secrets";
-import {verificationCodeService} from "./verification-code.service";
 import {VerificationCodeType} from "@prisma/client";
+import {createExpirationDate, createVerificationCode} from "../utils/create.verification-code";
+import {sendVerificationEmail} from "../utils/send.verification-code";
+import {EMAIL_DETAILS} from "../utils/constants/email.constants";
 
 const registerUser = async (data: TypeRegisterUser):Promise<void> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
@@ -24,7 +26,24 @@ const registerUser = async (data: TypeRegisterUser):Promise<void> => {
         createdAt: new Date()
     });
 
-    await verificationCodeService.createAndSendVerificationEmailCode(createdUser.id, createdUser.email);
+    const verificationCode = createVerificationCode();
+
+    await verificationCodesRepository.createVerificationCode({
+        userId: createdUser.id,
+        verificationCode: verificationCode,
+        expiredAt: createExpirationDate(new Date()),
+        createdAt: new Date(),
+        type: VerificationCodeType.EMAIL_VERIFICATION,
+    });
+
+    const emailDetails = EMAIL_DETAILS[VerificationCodeType.EMAIL_VERIFICATION];
+
+    await sendVerificationEmail(
+        createdUser.email,
+        verificationCode,
+        emailDetails.subject,
+        emailDetails.fromName
+    );
 }
 
 const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
@@ -72,22 +91,22 @@ const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
 
 const resendVerificationCode = async (data: TypeResendVerificationCode): Promise<void> => {
 
-    const dbUser = await usersRepository.getUserByEmail(data.email);
+    const userDb = await usersRepository.getUserByEmail(data.email);
 
-    if (!dbUser) {
+    if (!userDb) {
         throw new ApiError(404, error.USER_NOT_FOUND);
     }
 
-    if (dbUser.isBlocked) {
+    if (userDb.isBlocked) {
         throw new ApiError(403, error.USER_BLOCKED);
     }
 
-    if (dbUser.isVerified) {
+    if (userDb.isVerified) {
         throw new ApiError(409, error.USER_ALREADY_VERIFIED);
     }
 
     const dbVerificationCodesToday = await verificationCodesRepository.getVerificationCodesTodayByUserId({
-        userId: dbUser.id,
+        userId: userDb.id,
         startDate: startOfDay(new Date()),
         endDate: endOfDay(new Date()),
     });
@@ -103,7 +122,24 @@ const resendVerificationCode = async (data: TypeResendVerificationCode): Promise
         });
     }
 
-    await verificationCodeService.createAndSendVerificationEmailCode(dbUser.id, dbUser.email);
+    const verificationCode = createVerificationCode();
+
+    await verificationCodesRepository.createVerificationCode({
+        userId: userDb.id,
+        verificationCode: verificationCode,
+        expiredAt: createExpirationDate(new Date()),
+        createdAt: new Date(),
+        type: VerificationCodeType.EMAIL_VERIFICATION,
+    });
+
+    const emailDetails = EMAIL_DETAILS[VerificationCodeType.EMAIL_VERIFICATION];
+
+    await sendVerificationEmail(
+        userDb.email,
+        verificationCode,
+        emailDetails.subject,
+        emailDetails.fromName
+    );
 }
 
 
@@ -112,6 +148,14 @@ const deleteUser = async (userId:string):Promise<void> => {
 
     if (!userDb) {
         throw new ApiError(404, error.USER_NOT_FOUND);
+    }
+
+    if (!userDb.isVerified) {
+        throw new ApiError(403, error.EMAIL_NOT_VERIFIED);
+    }
+
+    if (userDb.isBlocked) {
+        throw new ApiError(403, error.USER_BLOCKED);
     }
 
     await usersRepository.deleteUserById(userId);

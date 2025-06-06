@@ -1,1 +1,1 @@
-export const RESUME_FOLDER = 'resumes';
+export const PHOTO_FOLDER = 'photo';

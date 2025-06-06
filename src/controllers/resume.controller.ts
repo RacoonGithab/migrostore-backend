@@ -1,33 +1,66 @@
 import {Request, Response} from "express";
 import {resumeService} from "../services/resume.service";
+import {UpdateResumeDto} from "../types/dto/resume.dto";
 
 
 const createResume = async (req: Request, res: Response) => {
     const {userId} = req.params;
-    await resumeService.createResume(req.body, userId);
-    res.status(201).json({message: "Resume created successfully"});
-}
-
-const getResumeByIdAndUserId = async (req: Request, res: Response) => {
-    const { resumeId, userId } = req.params;
-
-    const fileStream = await resumeService.getResumeByIdAndUserId({userId, resumeId});
+    const { buffer, filename } = await resumeService.createResume(req.body, userId, req.file);
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="resume-${resumeId}.pdf"`); // або attachment; для збереження
+    res.setHeader('Content-Disposition', `inline; filename="resume-${filename}.pdf"`);
 
-    fileStream.pipe(res);
+    res.send(buffer);
+}
+
+const getUserResume = async (req: Request, res: Response) => {
+    const { resumeId, userId } = req.params;
+
+    const { buffer, filename } = await resumeService.getUserResume({userId, resumeId});
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="resume-${filename}.pdf"`); // або attachment; для збереження
+
+    res.send(buffer);
 }
 
 
-const getUserResumesById = async (req: Request, res: Response) => {
-    const resumes = await resumeService.getResumesUserById(req.params.userId)
+const getListUserResume = async (req: Request, res: Response) => {
+    const resumes = await resumeService.getListUserResume(req.params.userId)
     res.status(200).json(resumes);
+}
+
+const updateResume = async (req: Request, res: Response) => {
+    const {userId, resumeId} = req.params;
+
+    const updateData: UpdateResumeDto = req.body;
+
+    const { buffer, filename } = await resumeService.updateResume(
+        updateData,
+        resumeId,
+        userId,
+        req.file
+    );
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="resume-${filename}.pdf"`); // або attachment; для збереження
+
+    res.send(buffer);
+}
+
+const deleteResume = async (req: Request, res: Response) => {
+    const {userId, resumeId} = req.params;
+
+    await resumeService.deleteResume({userId, resumeId});
+
+    res.status(204).json();
 }
 
 
 export const resumeController = {
     createResume,
-    getResumeByIdAndUserId,
-    getUserResumesById
+    getUserResume,
+    getListUserResume,
+    updateResume,
+    deleteResume
 }

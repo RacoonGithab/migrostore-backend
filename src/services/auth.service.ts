@@ -7,10 +7,12 @@ import bcrypt from "bcryptjs";
 import {tokenUtils} from "../utils/token.util"
 import {TokenDto} from "../types/dto/token.dto";
 import {tokenRedisUtil} from "../utils/redis.token.util";
-import {verificationCodeService} from "./verification-code.service";
 import {TypeVerifyUser} from "../types/verify.user.types";
 import {verificationCodesRepository} from "../repositories/verification-code.repository";
 import {VerificationCodeType} from "@prisma/client";
+import {createExpirationDate, createVerificationCode} from "../utils/create.verification-code";
+import {EMAIL_DETAILS} from "../utils/constants/email.constants";
+import {sendVerificationEmail} from "../utils/send.verification-code";
 
 
 const loginUser = async (data: TypeLoginUser): Promise<TokenDto> => {
@@ -21,7 +23,11 @@ const loginUser = async (data: TypeLoginUser): Promise<TokenDto> => {
     }
 
     if (!userDb.isVerified) {
-        throw new ApiError(403, error.EMAIL_NOT_VERIFIED)
+        throw new ApiError(403, error.EMAIL_NOT_VERIFIED);
+    }
+
+    if (userDb.isBlocked) {
+        throw new ApiError(403, error.USER_BLOCKED);
     }
 
     const passwordMatch = await bcrypt.compare(data.password, userDb.password);
@@ -33,7 +39,25 @@ const loginUser = async (data: TypeLoginUser): Promise<TokenDto> => {
     const activeSession = await sessionsRepository.findActiveSessionByUserId(userDb.id);
 
     if (activeSession) {
-        await verificationCodeService.createAndSendLoginVerificationCode(userDb.id, userDb.email);
+        const verificationCode = createVerificationCode();
+
+        await verificationCodesRepository.createVerificationCode({
+            userId: userDb.id,
+            verificationCode: verificationCode,
+            expiredAt: createExpirationDate(new Date()),
+            createdAt: new Date(),
+            type: VerificationCodeType.SECOND_FACTOR_LOGIN,
+        });
+
+        const emailDetails = EMAIL_DETAILS[VerificationCodeType.SECOND_FACTOR_LOGIN];
+
+        await sendVerificationEmail(
+            userDb.email,
+            verificationCode,
+            emailDetails.subject,
+            emailDetails.fromName
+        );
+
         throw new ApiError(409, error.ACTIVE_SESSION_EXISTS)
     }
 
@@ -50,7 +74,7 @@ const loginUser = async (data: TypeLoginUser): Promise<TokenDto> => {
     return {accessToken, refreshToken}
 }
 
-const verifyLoginCodeLogin = async (data: TypeVerifyUser): Promise<void> => {
+const verifyLoginCode = async (data: TypeVerifyUser): Promise<void> => {
     const userDb = await usersRepository.getUserByEmail(data.email);
 
     if (!userDb) {
@@ -161,7 +185,7 @@ const logoutUser = async (userId: string) => {
 
 export const authService = {
     loginUser,
-    verifyLoginCodeLogin,
+    verifyLoginCode,
     logoutUser,
     refreshAccessToken
 }

@@ -5,13 +5,15 @@ import {
 import ApiError from "../errors/api.error";
 import {error} from "../utils/constants/error.masseges";
 import {usersRepository} from "../repositories/user.repository";
-import {verificationCodeService} from "./verification-code.service";
 import {TypeVerifyUser} from "../types/verify.user.types";
 import {verificationCodesRepository} from "../repositories/verification-code.repository";
 import {VerificationCodeType} from "@prisma/client";
 import {tokenUtils} from "../utils/token.util";
 import {createPasswordHash} from "../utils/create.password.hash";
 import {tokenRedisUtil} from "../utils/redis.token.util";
+import {createExpirationDate, createVerificationCode} from "../utils/create.verification-code";
+import {EMAIL_DETAILS} from "../utils/constants/email.constants";
+import {sendVerificationEmail} from "../utils/send.verification-code";
 
 const initiatePasswordReset = async (email: string): Promise<void> => {
 
@@ -33,7 +35,24 @@ const initiatePasswordReset = async (email: string): Promise<void> => {
         throw new ApiError(403, error.USER_BLOCKED);
     }
 
-    await verificationCodeService.createAndSendResetPasswordVerificationCode(userDb.id, email);
+    const verificationCode = createVerificationCode();
+
+    await verificationCodesRepository.createVerificationCode({
+        userId: userDb.id,
+        verificationCode: verificationCode,
+        expiredAt: createExpirationDate(new Date()),
+        createdAt: new Date(),
+        type: VerificationCodeType.PASSWORD_RESET,
+    });
+
+    const emailDetails = EMAIL_DETAILS[VerificationCodeType.PASSWORD_RESET];
+
+    await sendVerificationEmail(
+        userDb.email,
+        verificationCode,
+        emailDetails.subject,
+        emailDetails.fromName
+    );
 
     await incrementForgotPasswordRequestCount(email);
 
