@@ -13,6 +13,7 @@ import {VerificationCodeType} from "@prisma/client";
 import {createExpirationDate, createVerificationCode} from "../utils/create.verification-code";
 import {EMAIL_DETAILS} from "../utils/constants/email.constants";
 import {sendVerificationEmail} from "../utils/send.verification-code";
+import {env} from "../config/secrets";
 
 
 const loginUser = async (data: TypeLoginUser): Promise<TokenDto> => {
@@ -81,6 +82,10 @@ const verifyLoginCode = async (data: TypeVerifyUser): Promise<void> => {
         throw new ApiError(404, error.USER_NOT_FOUND);
     }
 
+    if (!userDb.isVerified) {
+        throw new ApiError(409, error.EMAIL_NOT_VERIFIED);
+    }
+
     if (userDb.isBlocked) {
         throw new ApiError(403, error.USER_BLOCKED);
     }
@@ -95,10 +100,24 @@ const verifyLoginCode = async (data: TypeVerifyUser): Promise<void> => {
     }
 
     if (data.verificationCode !== dbVerificationCode.verificationCode) {
+        const updatedCode = await verificationCodesRepository.incrementCodeAttempts(dbVerificationCode.id); // Передаем ID!
+
+        if (updatedCode.attempts >= env.MAX_CODE_ATTEMPTS) {
+            await verificationCodesRepository.updateVerificationCodeById({
+                id: dbVerificationCode.id,
+                updatedAt: new Date(),
+            });
+            throw new ApiError(400, error.VERIFICATION_CODE_EXCEEDED_ATTEMPTS_LIMIT);
+        }
+
         throw new ApiError(400, error.VERIFICATION_CODE_MISMATCH);
     }
 
     if (new Date() > dbVerificationCode.expiredAt) {
+        await verificationCodesRepository.updateVerificationCodeById({
+            id: dbVerificationCode.id,
+            updatedAt: new Date(),
+        })
         throw new ApiError(400, error.VERIFICATION_CODE_EXPIRED);
     }
 

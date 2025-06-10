@@ -1,7 +1,5 @@
 import {getRedisClient} from "../config/redis";
 import {env} from "../config/secrets";
-import {RESET_PASSWORD_WINDOW_SECONDS} from "./constants/password.constants";
-
 
 export const checkForgotPasswordRateLimitExceeded = async (identifier: string): Promise<boolean> => {
     const redisClient = getRedisClient();
@@ -15,5 +13,5 @@ export const incrementForgotPasswordRequestCount = async (identifier: string): P
     const redisClient = getRedisClient();
     const key = `reset_password:${identifier}:${new Date().toISOString().split('T')[0]}`;
     await redisClient.incr(key);
-    await redisClient.expire(key, RESET_PASSWORD_WINDOW_SECONDS);
+    await redisClient.expire(key, env.RESET_PASSWORD_WINDOW_SECONDS);
 };

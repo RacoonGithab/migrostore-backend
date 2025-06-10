@@ -36,6 +36,19 @@ const updateVerificationCodeById = async (data: UpdateVerificationCodeDto): Prom
     });
 }
 
+const incrementCodeAttempts = async (codeId: string): Promise<VerificationCode> => {
+    return prismaClient.verificationCode.update({
+        where: {
+            id: codeId,
+        },
+        data: {
+            attempts: { increment: 1 },
+            updatedAt: new Date(),
+        }
+    });
+};
+
+
 const getVerificationCodesTodayByUserId = async (data: GetVerificationCodesDto): Promise<VerificationCode[]> => {
     return prismaClient.verificationCode.findMany({
         where: {
@@ -55,5 +68,6 @@ export const verificationCodesRepository = {
     createVerificationCode,
     getLastActiveVerificationCode,
     updateVerificationCodeById,
-    getVerificationCodesTodayByUserId
+    getVerificationCodesTodayByUserId,
+    incrementCodeAttempts
 }

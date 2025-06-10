@@ -8,11 +8,11 @@ export const refreshTokenValidation = async (
     _res: Response,
     next: NextFunction
 ): Promise<void> => {
-    const payload = await tokenUtils.validateToken(
+    const { payload } = await tokenUtils.validateToken(
         req,
         tokenUtils.verifyRefreshToken,
         'refresh'
-    ) as RefreshTokenPayload;
+    );
 
     req.params = { userId: payload.userId, jti: payload.jti };
     next();

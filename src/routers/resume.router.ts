@@ -4,7 +4,8 @@ import {accessTokenValidation} from "../middlewares/access.token.validation";
 import {catchAsync} from "../middlewares/async.handler";
 import {uploadMiddleware} from "../middlewares/upload.middleware";
 import {validateRequestBody} from "../middlewares/validate.request.body";
-import {createResumeSchema, updateResumeSchema} from "../schemas/resume.schema";
+import {createResumeSchema} from "../schemas/resume.schema";
+import {updateResumeSchema} from "../schemas/updata-resume.shema";
 
 const resumeRouter = express.Router();
 

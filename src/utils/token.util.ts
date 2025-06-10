@@ -12,11 +12,6 @@ import {
 import {v4 as uuidv4} from "uuid";
 import jwt from "jsonwebtoken";
 import {env} from "../config/secrets";
-import {
-    ACCESS_TOKEN_EXPIRES_IN,
-    REFRESH_TOKEN_EXPIRES_IN,
-    RESET_PASSWORD_TOKEN_EXPIRES_IN
-} from "./constants/token.constants";
 import {PayloadTokenType, VerifyTokenFn} from "../types/auth.token.types";
 
 
@@ -26,7 +21,7 @@ const generateAccessToken = (payload: TokenGenerationPayload): string => {
         ...payload,
         jti,
     };
-    return jwt.sign(accessTokenPayload, env.JWT_ACCESS_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_IN });
+    return jwt.sign(accessTokenPayload, env.JWT_ACCESS_SECRET, { expiresIn: env.ACCESS_TOKEN_EXPIRES_IN });
 };
 
 const verifyAccessToken = (token: string): AccessTokenPayload | null => {
@@ -45,7 +40,7 @@ const generateRefreshToken = (payload: Pick<TokenGenerationPayload, 'userId'>): 
         userId: payload.userId,
         jti,
     };
-    return jwt.sign(refreshTokenPayload, env.JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
+    return jwt.sign(refreshTokenPayload, env.JWT_REFRESH_SECRET, { expiresIn: env.REFRESH_TOKEN_EXPIRES_IN });
 };
 
 const verifyRefreshToken = (token: string): RefreshTokenPayload | null => {
@@ -71,7 +66,7 @@ const generatePasswordResetToken = (userId: string): string => {
         userId: userId,
         jti: uuidv4(),
     };
-    return jwt.sign(payload, env.JWT_RESET_PASSWORD_SECRET, { expiresIn: RESET_PASSWORD_TOKEN_EXPIRES_IN });
+    return jwt.sign(payload, env.JWT_RESET_PASSWORD_SECRET, { expiresIn: env.RESET_PASSWORD_TOKEN_EXPIRES_IN });
 };
 
 const verifyPasswordResetToken = (token: string): ResetTokenPayload | null => {
@@ -84,9 +79,9 @@ const verifyPasswordResetToken = (token: string): ResetTokenPayload | null => {
 
 
 
-const decodeToken = (token: string): AccessTokenPayload | RefreshTokenPayload | null => {
+const decodeToken = (token: string): AccessTokenPayload | RefreshTokenPayload | ResetTokenPayload | null => {
     try {
-        return jwt.decode(token) as AccessTokenPayload | RefreshTokenPayload | null;
+        return jwt.decode(token) as AccessTokenPayload | RefreshTokenPayload | ResetTokenPayload | null;
     } catch (error) {
         return null;
     }
@@ -98,7 +93,7 @@ export const validateToken = async (
     req: Request,
     verifyFn: VerifyTokenFn,
     _PayloadTokenType: 'access' | 'refresh' | 'reset_token',
-): Promise<PayloadTokenType> => {
+): Promise<{ payload: PayloadTokenType, token: string }> => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith('Bearer ')) {
@@ -106,6 +101,7 @@ export const validateToken = async (
     }
 
     const token = authHeader.split(" ")[1];
+
     const payload = verifyFn(token);
 
     if (!payload) {
@@ -119,7 +115,7 @@ export const validateToken = async (
         }
     }
 
-    return payload;
+    return { payload, token };
 };
 
 export const tokenUtils = {

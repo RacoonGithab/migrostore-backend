@@ -14,9 +14,9 @@ import {usersRepository} from "../repositories/user.repository";
 import { v4 as uuidv4 } from 'uuid';
 import {deleteFileFromStorage} from "../utils/storage/delete.file.from.storage";
 import {generateFileName} from "../utils/storage/generate.file.name";
-import {MAX_TOTAL_RESUMES} from "../utils/constants/resume.constants";
 import {redisConstants} from "../utils/constants/redis.constants";
 import {checkAndIncrementDailyResumeCount} from "../utils/redis.resume.util";
+import {env} from "../config/secrets";
 
 
 const createResume = async (
@@ -40,7 +40,7 @@ const createResume = async (
 
     const userResumes = await resumeRepository.getResumesUserById(userId);
 
-    if (userResumes.length >= MAX_TOTAL_RESUMES) {
+    if (userResumes.length >= env.MAX_TOTAL_RESUMES) {
         throw new ApiError(429, error.RESUME_LIMIT_EXCEEDED_TOTAL);
     }
 
@@ -164,7 +164,7 @@ const updateResume = async (
     userId: string,
     file?: Express.Multer.File
 ): Promise<{ buffer: Buffer, filename: string }> => {
-    const { ...updateFields } = data;
+    const { clearPhoto, ...updateFields } = data;
 
     const userDb = await usersRepository.getUserById(userId);
 
@@ -203,6 +203,12 @@ const updateResume = async (
             contentType: file.mimetype
         });
     }
+
+    if (clearPhoto && resumeDb.photo) {
+        await deleteFileFromStorage(resumeDb.photo);
+        updateFields.photo = null;
+    }
+
 
     const updatedResumeDb = await resumeRepository.updateResumeById(
         {

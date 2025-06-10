@@ -71,10 +71,24 @@ const verifyUser = async (data: TypeVerifyUser):Promise<void> => {
     }
 
     if (data.verificationCode !== dbVerificationCode.verificationCode) {
+        const updatedCode = await verificationCodesRepository.incrementCodeAttempts(dbVerificationCode.id); // Передаем ID!
+
+        if (updatedCode.attempts >= env.MAX_CODE_ATTEMPTS) {
+            await verificationCodesRepository.updateVerificationCodeById({
+                id: dbVerificationCode.id,
+                updatedAt: new Date(),
+            });
+            throw new ApiError(400, error.VERIFICATION_CODE_EXCEEDED_ATTEMPTS_LIMIT);
+        }
+
         throw new ApiError(400, error.VERIFICATION_CODE_MISMATCH);
     }
 
     if (new Date() > dbVerificationCode.expiredAt) {
+        await verificationCodesRepository.updateVerificationCodeById({
+            id: dbVerificationCode.id,
+            updatedAt: new Date(),
+        })
         throw new ApiError(400, error.VERIFICATION_CODE_EXPIRED);
     }
 

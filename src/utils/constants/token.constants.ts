@@ -1,3 +1,0 @@
-export const ACCESS_TOKEN_EXPIRES_IN = "45m";
-export const REFRESH_TOKEN_EXPIRES_IN = "60m";
-export const RESET_PASSWORD_TOKEN_EXPIRES_IN = "10m"

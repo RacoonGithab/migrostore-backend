@@ -35,7 +35,8 @@ export interface UpdateResumeDto {
     aboutMe?: string;
     city?: string;
     skills?: string[];
-    photo?: string;
+    photo?: string | null;
+    clearPhoto?: boolean;
 }
 
 export interface UpdateResumeServiceDto extends UpdateResumeDto {

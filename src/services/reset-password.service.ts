@@ -14,6 +14,7 @@ import {tokenRedisUtil} from "../utils/redis.token.util";
 import {createExpirationDate, createVerificationCode} from "../utils/create.verification-code";
 import {EMAIL_DETAILS} from "../utils/constants/email.constants";
 import {sendVerificationEmail} from "../utils/send.verification-code";
+import {env} from "../config/secrets";
 
 const initiatePasswordReset = async (email: string): Promise<void> => {
 
@@ -75,10 +76,24 @@ const verifyPasswordResetCode = async (data: TypeVerifyUser): Promise<string> =>
     }
 
     if (data.verificationCode !== dbVerificationCode.verificationCode) {
+        const updatedCode = await verificationCodesRepository.incrementCodeAttempts(dbVerificationCode.id); // Передаем ID!
+
+        if (updatedCode.attempts >= env.MAX_CODE_ATTEMPTS) {
+            await verificationCodesRepository.updateVerificationCodeById({
+                id: dbVerificationCode.id,
+                updatedAt: new Date(),
+            });
+            throw new ApiError(400, error.VERIFICATION_CODE_EXCEEDED_ATTEMPTS_LIMIT);
+        }
+
         throw new ApiError(400, error.VERIFICATION_CODE_MISMATCH);
     }
 
     if (new Date() > dbVerificationCode.expiredAt) {
+        await verificationCodesRepository.updateVerificationCodeById({
+            id: dbVerificationCode.id,
+            updatedAt: new Date(),
+        })
         throw new ApiError(400, error.VERIFICATION_CODE_EXPIRED);
     }
 
@@ -105,14 +120,13 @@ const passwordReset = async (userId: string, newPassword: string, resetToken: st
         throw new ApiError(403, error.USER_BLOCKED);
     }
 
-
-    await usersRepository.updateUserPassword({
-        userId: userId,
-        newPassword: await createPasswordHash(newPassword),
-    });
-
+    if (resetToken) {
+        await usersRepository.updateUserPassword({
+            userId: userId,
+            newPassword: await createPasswordHash(newPassword),
+        });
+    }
     await tokenRedisUtil.blackListToken(resetToken)
-
 }
 
 export const resetPasswordService = {
