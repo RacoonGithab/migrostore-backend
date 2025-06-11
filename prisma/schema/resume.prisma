@@ -1,0 +1,19 @@
+model Resume {
+  id             String   @id
+  firstName      String   @map("first_name")
+  lastName       String   @map("last_name")
+  age            Int
+  education      String
+  workExperience String   @map("work_experience")
+  aboutMe        String   @map("about_me")
+  city           String?
+  skills         String[]
+  photo          String?
+  createdAt      DateTime @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  userId String
+  user   User   @relation("UserResume", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("resumes")
+}

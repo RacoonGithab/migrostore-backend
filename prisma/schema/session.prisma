@@ -1,0 +1,13 @@
+model Session {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  refreshToken String   @unique
+  accessToken  String   @unique
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation("UserSession", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}

@@ -1,0 +1,15 @@
+model VerificationCode {
+  id               String               @id @default(uuid())
+  userId           String               @map("user_id")
+  verificationCode String               @map("verification_code")
+  type             VerificationCodeType @map("type")
+  isActive         Boolean              @default(true) @map("is_active")
+  attempts         Int                  @default(0)
+  expiredAt        DateTime             @map("expired_at")
+  createdAt        DateTime             @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+
+  User User @relation("UserVerificationCode", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_codes")
+}

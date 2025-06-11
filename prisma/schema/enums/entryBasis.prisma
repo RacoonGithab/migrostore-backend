@@ -1,0 +1,6 @@
+enum EntryBasis {
+  REFUGEE
+  VISA_FREE
+  WORK_VISA
+  OTHER_VISA
+}

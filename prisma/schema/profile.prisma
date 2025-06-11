@@ -1,0 +1,22 @@
+model UserProfile {
+  id String @id @default(uuid())
+
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  dateOfBirth DateTime @map("data_of_birth")
+
+  country              String?
+  entryBasis           EntryBasis?    @map("entry_basis")
+  citiesForJob         String[]       @map("cities_for_job")
+  polishLanguageLevel  LanguageLevel? @map("polish_language_level")
+  englishLanguageLevel LanguageLevel? @map("english_language_level")
+  skills               String[]
+
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId String @unique
+  user   User   @relation("UserProfile", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
