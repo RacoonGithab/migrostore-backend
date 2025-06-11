@@ -3,7 +3,7 @@ model UserProfile {
 
   firstName   String   @map("first_name")
   lastName    String   @map("last_name")
-  dateOfBirth DateTime @map("data_of_birth")
+  dateOfBirth DateTime @map("date_of_birth")
 
   country              String?
   entryBasis           EntryBasis?    @map("entry_basis")
@@ -12,10 +12,10 @@ model UserProfile {
   englishLanguageLevel LanguageLevel? @map("english_language_level")
   skills               String[]
 
-  createdAt DateTime @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  userId String @unique
+  userId String @unique @map("user_id")
   user   User   @relation("UserProfile", fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_profiles")
