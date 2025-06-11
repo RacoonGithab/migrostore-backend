@@ -5,12 +5,15 @@ import resumeRouter from "./resume.router";
 import cityRouter from "./city.router";
 import skillRouter from "./skill.router";
 import resetPasswordRouters from "./reset-password.router";
+import userProfileRouter from "./user-profile.router";
 
 const rootRouters = express.Router();
 
 rootRouters.use("/users", userRouters);
 
 rootRouters.use("/auth", authRouters);
+
+rootRouters.use("/user-profile", userProfileRouter);
 
 rootRouters.use("/password-reset", resetPasswordRouters)
 
