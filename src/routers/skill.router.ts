@@ -16,6 +16,18 @@ skillRouter.post(
     catchAsync(skillController.createSkill)
 );
 
+skillRouter.get(
+    "/",
+    accessTokenValidation,
+    catchAsync(skillController.getListSkills)
+)
+
+skillRouter.get(
+    "/:skillId",
+    accessTokenValidation,
+    catchAsync(skillController.getSkill)
+)
+
 skillRouter.delete(
     "/:skillId",
     accessTokenValidation,

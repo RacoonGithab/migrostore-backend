@@ -20,8 +20,16 @@ export const getSkillsByNames = async (names: string[]): Promise<Skill[]> => {
     });
 };
 
-const getSkillById = async (id: string): Promise<Skill | null> => {
-    return prismaClient.skill.findUnique({ where: { id } });
+const getListSkills = async (): Promise<Skill[]> => {
+    return prismaClient.skill.findMany({
+        orderBy: {
+            name: 'asc',
+        },
+    });
+};
+
+const getSkillById = async (skillId: string): Promise<Skill | null> => {
+    return prismaClient.skill.findUnique({ where: { id: skillId } });
 }
 
 const deleteSkillById = async (id: string): Promise<Skill | null> => {
@@ -32,6 +40,7 @@ export const skillRepository = {
     createSkillByName,
     getSkillsByNames,
     getSkillById,
+    getListSkills,
     deleteSkillById,
     getSkillByName
 }

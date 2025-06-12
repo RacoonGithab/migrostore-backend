@@ -16,6 +16,18 @@ cityRouter.post(
     catchAsync(cityController.createCity)
 );
 
+cityRouter.get(
+    "/",
+    accessTokenValidation,
+    catchAsync(cityController.getListCities),
+)
+
+cityRouter.get(
+    "/:cityId",
+    accessTokenValidation,
+    catchAsync(cityController.getCity),
+)
+
 cityRouter.delete(
     "/:cityId",
     accessTokenValidation,

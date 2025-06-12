@@ -6,6 +6,7 @@ import cityRouter from "./city.router";
 import skillRouter from "./skill.router";
 import resetPasswordRouters from "./reset-password.router";
 import userProfileRouter from "./user-profile.router";
+import countryRouter from "./country.router";
 
 const rootRouters = express.Router();
 
@@ -18,6 +19,8 @@ rootRouters.use("/user-profile", userProfileRouter);
 rootRouters.use("/password-reset", resetPasswordRouters)
 
 rootRouters.use("/resume", resumeRouter);
+
+rootRouters.use("/country", countryRouter)
 
 rootRouters.use("/city", cityRouter)
 

@@ -3,6 +3,11 @@ export interface CreateResumeSkillDto {
     skillId: string
 }
 
+export interface getSkillDto {
+    userId: string;
+    skillId: string;
+}
+
 export interface CreateSkillDto {
     name: string
     userId: string;
