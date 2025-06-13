@@ -18,4 +18,7 @@ export const createResumeSchema = z.object({
         .regex(regexPatterns.SKILL_NAME, "The skill name can only contain letters, numbers, spaces, and periods (minimum 2 characters).")),
     photo: z.string().optional(),
     pdfFilename: z.string().optional(),
+    clearPhoto: z.coerce.boolean().optional(),
 });
+
+export const updateResumeSchema = createResumeSchema.partial()

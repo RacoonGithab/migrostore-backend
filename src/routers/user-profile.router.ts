@@ -4,12 +4,14 @@ import {catchAsync} from "../middlewares/async.handler";
 import {userProfileController} from "../controllers/user-profile.controller";
 import {validateRequestBody} from "../middlewares/validate.request.body";
 import {createUserProfileSchema, updateUserProfileSchema} from "../schemas/create.user-profile.schema";
+import {uploadMiddleware} from "../middlewares/upload.middleware";
 
 const userProfileRouter = express.Router();
 
 userProfileRouter.post(
     "/",
     accessTokenValidation,
+    uploadMiddleware,
     validateRequestBody(createUserProfileSchema),
     catchAsync(userProfileController.createUserProfile)
 );
@@ -23,6 +25,7 @@ userProfileRouter.get(
 userProfileRouter.patch(
     "/",
     accessTokenValidation,
+    uploadMiddleware,
     validateRequestBody(updateUserProfileSchema),
     catchAsync(userProfileController.updateUserProfile)
 )

@@ -20,6 +20,12 @@ const createUserProfile = async (data: createUserProfileDto, userId: string): Pr
         throw new ApiError(403, error.USER_BLOCKED);
     }
 
+    const existingProfile = await userProfileRepository.getProfileByUserId(userId);
+
+    if (existingProfile) {
+        throw new ApiError(409, error.USER_PROFILE_ALREADY_EXISTS);
+    }
+
     return userProfileRepository.createUserProfile(
         {
             firstName: data.firstName,
@@ -74,6 +80,12 @@ const updateUserProfile = async (data: updateUserProfileDto, userId: string): Pr
 
     if (userDb.isBlocked) {
         throw new ApiError(403, error.USER_BLOCKED);
+    }
+
+    const existingProfile = await userProfileRepository.getProfileByUserId(userId);
+
+    if (!existingProfile) {
+        throw new ApiError(404, error.USER_PROFILE_NOT_FOUND);
     }
 
     return userProfileRepository.updateUserProfile(

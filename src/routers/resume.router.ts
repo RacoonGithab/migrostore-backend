@@ -5,7 +5,7 @@ import {catchAsync} from "../middlewares/async.handler";
 import {uploadMiddleware} from "../middlewares/upload.middleware";
 import {validateRequestBody} from "../middlewares/validate.request.body";
 import {createResumeSchema} from "../schemas/resume.schema";
-import {updateResumeSchema} from "../schemas/updata-resume.shema";
+import {updateResumeSchema} from "../schemas/resume.schema";
 
 const resumeRouter = express.Router();
 

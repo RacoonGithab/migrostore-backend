@@ -18,7 +18,7 @@ export interface updateUserProfileDto {
     firstName?: string;
     lastName?: string;
     dateOfBirth?: string;
-    email: string;
+    email?: string;
     country?: string;
     entryBasis?: EntryBasis;
     citiesForJob?: string[];
