@@ -7,8 +7,8 @@ export interface CreateResumeDto {
     workExperience: string;
     aboutMe: string;
     userId: string;
-    city: string;
-    skills: string[];
+    city?: string;
+    skills?: string[];
     photo?: string;
     updatedAt: Date;
     createdAt: Date;

@@ -96,20 +96,9 @@ const deleteSkill = async (data: DeleteSkillDto): Promise<void> => {
     await skillRepository.deleteSkillById(data.skillId);
 }
 
-
-export const validateSkills = async (skillNames: string[]): Promise<string[]> => {
-    const skills: Skill[] = await skillRepository.getSkillsByNames(skillNames);
-    if (skills.length !== skillNames.length) {
-        throw new ApiError(404, error.NOT_SKILL_EXISTS);
-    }
-    return skills.map(skill => skill.name); // <--- Возвращаем names
-};
-
-
 export const skillService = {
     createSkill,
     deleteSkill,
     getSkill,
     getListSkills,
-    validateSkills
 } as const;

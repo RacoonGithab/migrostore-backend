@@ -20,6 +20,7 @@ export const error = {
     FORBIDDEN: "Access is denied",
     NOT_CITY_EXISTS: "City not found.",
     NOT_SKILL_EXISTS: "Skill does not exist",
+    COUNTRY_NOT_FOUND: "Country not found.",
     TOO_MANY_REQUESTS_DAILY: "Too many requests",
     RESUME_LIMIT_EXCEEDED_TOTAL: "Resume creation limit exceeded",
 }

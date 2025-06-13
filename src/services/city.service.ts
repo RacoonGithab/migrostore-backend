@@ -96,19 +96,8 @@ const deleteCity = async (data: deleteCityDto): Promise<void> => {
     await cityRepository.deleteCityById(data.cityId);
 }
 
-export const validateCity = async (city: string | undefined): Promise<void> => {
-    if (city) {
-        const cityExist = await cityRepository.getCityByName(city);
-        if (!cityExist) {
-            throw new ApiError(404, error.NOT_CITY_EXISTS);
-        }
-    }
-};
-
-
 export const cityService = {
     createCity,
-    validateCity,
     getListCities,
     getCity,
     deleteCity

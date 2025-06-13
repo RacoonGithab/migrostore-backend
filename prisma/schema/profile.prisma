@@ -4,6 +4,7 @@ model UserProfile {
   firstName   String   @map("first_name")
   lastName    String   @map("last_name")
   dateOfBirth DateTime @map("date_of_birth")
+  email       String   @map("contact_email")
 
   country              String?
   entryBasis           EntryBasis?    @map("entry_basis")

@@ -8,7 +8,7 @@ import {
 } from "../types/dto/resume.dto";
 
 
-export const createResume = async (data: CreateResumeDto): Promise<Resume> => {
+const createResume = async (data: CreateResumeDto): Promise<Resume> => {
     return prismaClient.resume.create({data});
 };
 

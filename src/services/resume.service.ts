@@ -6,8 +6,6 @@ import {
 import {resumeRepository} from "../repositories/resume.repository";
 import ApiError from "../errors/api.error";
 import {error} from "../utils/constants/error.masseges";
-import {validateCity} from "./city.service";
-import {validateSkills} from "./skill.service";
 import {generateResumePdf} from "../utils/generate.resume.pdf";
 import {uploadFileToStorage} from "../utils/storage/upload.file.to.storage";
 import {usersRepository} from "../repositories/user.repository";
@@ -50,16 +48,10 @@ const createResume = async (
         throw new ApiError(429, error.TOO_MANY_REQUESTS_DAILY);
     }
 
-    await validateCity(data.city);
-
-    const skillNames = await validateSkills(data.skills);
-
     const newResumeId = uuidv4();
 
-    let photoPathInStorage: string | undefined;
-
     if (file) {
-        photoPathInStorage = await uploadFileToStorage({
+        data.photo = await uploadFileToStorage({
             buffer: file.buffer,
             resumeId: newResumeId,
             filename: file.originalname,
@@ -79,8 +71,8 @@ const createResume = async (
             aboutMe: data.aboutMe,
             userId: userId,
             city: data.city,
-            skills: skillNames,
-            photo: photoPathInStorage,
+            skills: data.skills,
+            photo: data.photo,
             createdAt: new Date(),
             updatedAt: new Date(),
         });
@@ -178,14 +170,6 @@ const updateResume = async (
 
     if (userDb.isBlocked) {
         throw new ApiError(403, error.USER_BLOCKED);
-    }
-
-    if (updateFields.city !== undefined) {
-        await validateCity(updateFields.city);
-    }
-
-    if (updateFields.skills !== undefined) {
-        updateFields.skills = await validateSkills(updateFields.skills);
     }
 
     const resumeDb = await resumeRepository.findResumeByIdAndUserId({ userId, resumeId });
