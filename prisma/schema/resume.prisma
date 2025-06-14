@@ -1,18 +1,26 @@
 model Resume {
-  id             String   @id
-  firstName      String   @map("first_name")
-  lastName       String   @map("last_name")
-  age            Int
-  education      String
-  workExperience String   @map("work_experience")
-  aboutMe        String   @map("about_me")
-  city           String?
-  skills         String[]
-  photo          String?
-  createdAt      DateTime @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id            String  @id @default(uuid())
+  title         String  @map("title")
+  email         String  @map("contact_email")
+  phoneNumber   String  @map("phone_number")
+  country       String? @map("country")
+  qualification String? @map("qualification")
 
-  userId String
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  photo       String?  @map("photo")
+  dateOfBirth DateTime @map("date_of_birth")
+  aboutMe     String   @map("about_me")
+  skills      String[] @map("skills")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  workExperiences WorkExperience[] @relation("WorkExperience")
+  educations      Education[]      @relation("Education")
+  languageSkills  LanguageSkill[]  @relation("LanguageSkill")
+
+  userId String @map("user_id")
   user   User   @relation("UserResume", fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("resumes")

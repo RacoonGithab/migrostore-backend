@@ -16,7 +16,7 @@ export const createUserProfileSchema = z.object({
         }, {
             message: "Date of birth cannot be in the future and you must be at least 18 years old."
         }),
-    email: z.string().regex(regexPatterns.EMAIL, "Invalid email format").nonempty("Email is required"),
+    email: z.string().regex(regexPatterns.EMAIL, {message: "Invalid email format"}).nonempty("Email is required"),
     country: z.string()
         .regex(regexPatterns.COUNTRY, "Invalid country name format. Only letters, spaces, hyphens, and apostrophes are allowed.")
         .optional(),

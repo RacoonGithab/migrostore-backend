@@ -1,30 +1,34 @@
-import {PdfTemplateDataDto} from "../types/dto/resume.dto";
+import {FullResume, PdfTemplateDataDto} from "../types/dto/resume.dto";
 import { createResumeHtmlTemplate } from "./templates/create.pdf-template";
 import {getBrowserInstance} from "../config/puppeteer-browser";
-import {Resume} from "@prisma/client";
 import {getBucket} from "../config/firebase";
 
-export const generateResumePdf = async (resumeData: Resume): Promise<Buffer | null> => {
+export const generateResumePdf = async (resumeData: FullResume): Promise<Buffer | null> => {
     const browserInstance = await getBrowserInstance();
     const page = await browserInstance.newPage();
 
     let photoUrlForPdf: string | undefined;
-
     if (resumeData.photo) {
         const bucketName = getBucket().name;
         photoUrlForPdf = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(resumeData.photo)}?alt=media`;
     }
 
     const templateData: PdfTemplateDataDto = {
+        title:resumeData.title,
+        email: resumeData.email,
+        phoneNumber: resumeData.phoneNumber,
         firstName: resumeData.firstName,
         lastName: resumeData.lastName,
-        age: resumeData.age,
-        education: resumeData.education,
-        workExperience: resumeData.workExperience,
-        aboutMe: resumeData.aboutMe,
-        city: resumeData.city,
-        skills: resumeData.skills,
         photoUrl: photoUrlForPdf,
+        dateOfBirth: resumeData.dateOfBirth,
+        country: resumeData.country,
+        aboutMe: resumeData.aboutMe,
+        skills: resumeData.skills,
+        qualification: resumeData.qualification,
+
+        workExperiences: resumeData.workExperiences,
+        educations: resumeData.educations,
+        languageSkills: resumeData.languageSkills,
     };
 
     const html = createResumeHtmlTemplate(templateData);

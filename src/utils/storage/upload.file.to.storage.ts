@@ -9,7 +9,7 @@ export const uploadFileToStorage = async (data: UploadFileToStorageDto): Promise
     const destination = generateFilePath(
         {
             userId: data.userId,
-            resumeId: data.resumeId,
+            resumeName: data.resumeName,
             originalFilename: data.filename
         }
     );

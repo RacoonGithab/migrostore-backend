@@ -1,0 +1,10 @@
+model LanguageSkill {
+  id       String        @id @default(uuid())
+  language Language
+  level    LanguageLevel
+
+  resumeId String
+  resume   Resume @relation("LanguageSkill", fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("language_skills")
+}

@@ -9,5 +9,12 @@ export const regexPatterns = {
     LAST_NAME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ']{2,50}$/,
     EDUCATION: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'-]{5,500}$/,
     WORK_EXPERIENCE: /^[\s\S]{10,2000}$/,
-    ABOUT_ME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'"()\-!?;:]{20,2000}$/
+    ABOUT_ME: /^[a-zA-Zа-яА-ЯіїІЇєЄґҐ0-9\s.,'"()\-!?;:]{20,2000}$/,
+    TITLE_POSITION_SPECIALTY_NAME: /^[\p{L}\p{N}\s.,'&-/#()]{2,150}$/u,
+    COMPANY_INSTITUTION_NAME: /^[\p{L}\p{N}\s.,'&-/#()@_]{2,150}$/u,
+
+    PHONE_NUMBER: /^\+[1-9]\d{1,14}$/,
+
+    START_DATE: /^\d{4}-\d{2}-\d{2}$/,
+    END_DATE: /^\d{4}-\d{2}-\d{2}$/,
 } as const;

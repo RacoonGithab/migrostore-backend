@@ -3,5 +3,5 @@ import {regexPatterns} from "../utils/constants/regex.patterns";
 
 export const resendVerificationCodeSchema = z.object({
 
-    email: z.string().nonempty("Email is required").regex(regexPatterns.EMAIL, "Invalid email format"),
+    email: z.string().regex(regexPatterns.EMAIL, {message: "Invalid email format"}).nonempty("Email is required"),
 })
