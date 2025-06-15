@@ -1,0 +1,16 @@
+model LegalizationRequest {
+  id          String              @id @default(uuid())
+  fullName    String              @map("full_name")
+  phoneNumber String              @map("phone_number")
+  email       String
+  city        String
+  service     LegalizationService
+  timeRange   ContactTimeRange
+  comment     String
+  createdAt   DateTime            @default(now()) @map("created_at")
+
+  userId String
+  user   User   @relation("LegalizationRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("legalization_requests")
+}

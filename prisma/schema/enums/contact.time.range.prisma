@@ -1,0 +1,5 @@
+enum ContactTimeRange {
+  MORNING
+  AFTERNOON
+  EVENING
+}

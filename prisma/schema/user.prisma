@@ -9,10 +9,11 @@ model User {
   createdAt  DateTime  @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
 
-  VerificationCode VerificationCode[] @relation("UserVerificationCode")
-  Session          Session[]          @relation("UserSession")
-  Resume           Resume[]           @relation("UserResume")
-  UserProfile      UserProfile?       @relation("UserProfile")
+  VerificationCode     VerificationCode[]    @relation("UserVerificationCode")
+  Session              Session[]             @relation("UserSession")
+  Resume               Resume[]              @relation("UserResume")
+  UserProfile          UserProfile?          @relation("UserProfile")
+  LegalizationRequests LegalizationRequest[] @relation("LegalizationRequests")
 
   @@map("users")
 }
