@@ -1,17 +1,15 @@
 import {getRedisClient} from "../config/redis";
 import {redisConstants} from "./constants/redis.constants";
 
-export const checkAndIncrementDailyResumeCount = async (
+export const incrementDailyCount = async (
     userId: string,
+    actionKeyPrefix: string
 ): Promise<number> => {
     const redisClient = getRedisClient();
 
     const now = new Date();
-
     const todayDateString = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-
-    const key = `${redisConstants.USER_RESUME_COUNT_PREFIX}:${userId}:${todayDateString}`;
-
+    const key = `${actionKeyPrefix}:${userId}:${todayDateString}`;
 
     const endOfDay = new Date(now);
     endOfDay.setHours(
@@ -22,7 +20,6 @@ export const checkAndIncrementDailyResumeCount = async (
     );
 
     const expirationInSeconds = Math.ceil((endOfDay.getTime() - now.getTime()) / 1000);
-
     const finalExpirationSeconds = Math.max(1, expirationInSeconds);
 
     const result = await redisClient.multi()

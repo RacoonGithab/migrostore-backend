@@ -2,11 +2,11 @@ model LegalizationRequest {
   id          String              @id @default(uuid())
   fullName    String              @map("full_name")
   phoneNumber String              @map("phone_number")
-  email       String
+  email       String?
   city        String
   service     LegalizationService
   timeRange   ContactTimeRange
-  comment     String
+  comment     String?
   createdAt   DateTime            @default(now()) @map("created_at")
 
   userId String

@@ -11,8 +11,9 @@ import {uploadFileToStorage} from "../utils/storage/upload.file.to.storage";
 import {usersRepository} from "../repositories/user.repository";
 import {deleteFileFromStorage} from "../utils/storage/delete.file.from.storage";
 import {redisConstants} from "../utils/constants/redis.constants";
-import {checkAndIncrementDailyResumeCount} from "../utils/redis.resume.util";
+import {checkDailyCount} from "../utils/redis.check.daily.count.util";
 import {env} from "../config/secrets";
+import {incrementDailyCount} from "../utils/increment.daily.count";
 
 
 const createResume = async (
@@ -40,9 +41,12 @@ const createResume = async (
         throw new ApiError(429, error.RESUME_LIMIT_EXCEEDED_TOTAL);
     }
 
-    const currentDailyCount = await checkAndIncrementDailyResumeCount(userId);
+    const currentDailyCount = await checkDailyCount(
+        userId,
+        redisConstants.USER_RESUME_COUNT_PREFIX
+    );
 
-    if (currentDailyCount > redisConstants.DAILY_RESUME_LIMIT) {
+    if (currentDailyCount >= redisConstants.DAILY_RESUME_LIMIT) {
         throw new ApiError(429, error.TOO_MANY_REQUESTS_DAILY);
     }
 
@@ -80,6 +84,11 @@ const createResume = async (
     if (!resume || !resume.id) {
         throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
     }
+
+    await incrementDailyCount(
+        userId,
+        redisConstants.USER_RESUME_COUNT_PREFIX
+    )
 
     const pdfBuffer = await generateResumePdf(resume);
 

@@ -23,6 +23,7 @@ export const error = {
     COUNTRY_NOT_FOUND: "Country not found.",
     TOO_MANY_REQUESTS_DAILY: "Too many requests",
     RESUME_LIMIT_EXCEEDED_TOTAL: "Resume creation limit exceeded",
+    LEGALIZATION_REQUEST_LIMIT_EXCEEDED_TOTAL: "Request limit exceeded",
     USER_PROFILE_ALREADY_EXISTS: "User profile already exists for this user.",
     USER_PROFILE_NOT_FOUND: "User profile does not exist",
 }
