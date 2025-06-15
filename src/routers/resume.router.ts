@@ -15,7 +15,7 @@ resumeRouter.get("/:resumeId", accessTokenValidation, catchAsync(resumeControlle
 
 resumeRouter.get("/", accessTokenValidation, catchAsync(resumeController.getListUserResume))
 
-// resumeRouter.patch("/:resumeId", accessTokenValidation, uploadMiddleware, validateRequestBody(updateResumeSchema), catchAsync(resumeController.updateResume));
+resumeRouter.patch("/:resumeId", accessTokenValidation, uploadMiddleware, validateRequestBody(updateResumeSchema), catchAsync(resumeController.updateResume));
 
 resumeRouter.delete("/:resumeId", accessTokenValidation, catchAsync(resumeController.deleteResume));
 

@@ -7,7 +7,7 @@ export interface CreateResumeDto {
     firstName: string;
     lastName: string;
     photo?: string;
-    dateOfBirth: Date;
+    dateOfBirth: string;
     country?: string;
     aboutMe: string;
     skills?: string[];
@@ -76,6 +76,7 @@ export interface UpdateResumeDto {
     photo?: string | null;
     clearPhoto?: boolean;
     country?: string;
+    dateOfBirth?: string;
     qualification?: string;
 
     workExperiences?: (CreateWorkExperienceDto & { id?: string })[];
@@ -122,4 +123,5 @@ export interface generateFilePathDto {
 export interface GenerateFileNameDto {
     firstName: string,
     lastName: string,
+    title: string,
 }

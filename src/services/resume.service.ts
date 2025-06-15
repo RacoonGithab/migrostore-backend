@@ -10,18 +10,16 @@ import {generateResumePdf} from "../utils/generate.resume.pdf";
 import {uploadFileToStorage} from "../utils/storage/upload.file.to.storage";
 import {usersRepository} from "../repositories/user.repository";
 import {deleteFileFromStorage} from "../utils/storage/delete.file.from.storage";
-import {generateFileName} from "../utils/storage/generate.file.name";
 import {redisConstants} from "../utils/constants/redis.constants";
 import {checkAndIncrementDailyResumeCount} from "../utils/redis.resume.util";
 import {env} from "../config/secrets";
-import {Resume} from "@prisma/client";
 
 
 const createResume = async (
     data: CreateResumeDto,
     userId: string,
     file?: Express.Multer.File
-): Promise<UserResumeByIdDto[]> => {
+): Promise<{ buffer: Buffer, filename: string }> => {
     const userDb = await usersRepository.getUserById(userId);
 
     if (!userDb) {
@@ -67,7 +65,7 @@ const createResume = async (
             firstName: data.firstName,
             lastName: data.lastName,
             photo: data.photo,
-            dateOfBirth: new Date(data.dateOfBirth),
+            dateOfBirth: data.dateOfBirth,
             country: data.country,
             aboutMe: data.aboutMe,
             skills: data.skills,
@@ -83,7 +81,13 @@ const createResume = async (
         throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
     }
 
-    return resumeRepository.getResumesUserById(userId);
+    const pdfBuffer = await generateResumePdf(resume);
+
+    if (!pdfBuffer) {
+        throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
+    }
+
+    return {buffer: pdfBuffer, filename: resume.title};
 }
 
 const getUserResume = async (data: findResumeByIdAndUserIdDto): Promise<{ buffer: Buffer, filename: string }> => {
@@ -114,9 +118,7 @@ const getUserResume = async (data: findResumeByIdAndUserIdDto): Promise<{ buffer
         throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
     }
 
-    const suggestedFileName = generateFileName({firstName: resumeDb.firstName, lastName: resumeDb.lastName});
-
-    return {buffer: pdfBuffer, filename: suggestedFileName};
+    return {buffer: pdfBuffer, filename: resumeDb.title};
 };
 
 
@@ -143,72 +145,70 @@ const getListUserResume = async (userId: string): Promise<UserResumeByIdDto[]> =
     return resumeDb;
 }
 
-// const updateResume = async (
-//     data: UpdateResumeDto,
-//     resumeId: string,
-//     userId: string,
-//     file?: Express.Multer.File
-// ): Promise<{ buffer: Buffer, filename: string }> => {
-//     const { clearPhoto, ...updateFields } = data;
-//
-//     const userDb = await usersRepository.getUserById(userId);
-//
-//     if (!userDb) {
-//         throw new ApiError(404, error.USER_NOT_FOUND);
-//     }
-//
-//     if (!userDb.isVerified) {
-//         throw new ApiError(401, error.EMAIL_NOT_VERIFIED);
-//     }
-//
-//     if (userDb.isBlocked) {
-//         throw new ApiError(403, error.USER_BLOCKED);
-//     }
-//
-//     const resumeDb = await resumeRepository.findResumeByIdAndUserId({ userId, resumeId });
-//
-//     if (!resumeDb) {
-//         throw new ApiError(404, error.NOT_FOUND);
-//     }
-//
-//     if (file) {
-//         updateFields.photo = await uploadFileToStorage({
-//             buffer: file.buffer,
-//             resumeName: resumeDb.title,
-//             filename: file.originalname,
-//             userId: userId,
-//             contentType: file.mimetype
-//         });
-//     }
-//
-//     if (clearPhoto && resumeDb.photo) {
-//         await deleteFileFromStorage(resumeDb.photo);
-//         updateFields.photo = null;
-//     }
-//
-//
-//     const updatedResumeDb = await resumeRepository.updateResumeById(
-//         {
-//             userId,
-//             resumeId,
-//             ...updateFields
-//         }
-//     )
-//
-//     if (!updatedResumeDb) {
-//         throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
-//     }
-//
-//     const pdfBuffer = await generateResumePdf(updatedResumeDb);
-//
-//     if (!pdfBuffer) {
-//         throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
-//     }
-//
-//     const suggestedFileName = generateFileName({firstName: updatedResumeDb.firstName, lastName: updatedResumeDb.lastName});
-//
-//     return { buffer: pdfBuffer, filename: suggestedFileName };
-// }
+const updateResume = async (
+    data: UpdateResumeDto,
+    resumeId: string,
+    userId: string,
+    file?: Express.Multer.File
+): Promise<{ buffer: Buffer, filename: string }> => {
+    const { clearPhoto, ...updateFields } = data;
+
+    const userDb = await usersRepository.getUserById(userId);
+
+    if (!userDb) {
+        throw new ApiError(404, error.USER_NOT_FOUND);
+    }
+
+    if (!userDb.isVerified) {
+        throw new ApiError(401, error.EMAIL_NOT_VERIFIED);
+    }
+
+    if (userDb.isBlocked) {
+        throw new ApiError(403, error.USER_BLOCKED);
+    }
+
+    const resumeDb = await resumeRepository.findResumeByIdAndUserId({ userId, resumeId });
+
+    if (!resumeDb) {
+        throw new ApiError(404, error.NOT_FOUND);
+    }
+
+    if (file) {
+        updateFields.photo = await uploadFileToStorage({
+            buffer: file.buffer,
+            resumeName: resumeDb.title,
+            filename: file.originalname,
+            userId: userId,
+            contentType: file.mimetype
+        });
+    }
+
+    if (clearPhoto && resumeDb.photo) {
+        await deleteFileFromStorage(resumeDb.photo);
+        updateFields.photo = null;
+    }
+
+
+    const updatedResumeDb = await resumeRepository.updateResumeById(
+        {
+            userId,
+            resumeId,
+            ...updateFields
+        }
+    )
+
+    if (!updatedResumeDb) {
+        throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
+    }
+
+    const pdfBuffer = await generateResumePdf(updatedResumeDb);
+
+    if (!pdfBuffer) {
+        throw new ApiError(500, error.INTERNAL_SERVER_ERROR);
+    }
+
+    return { buffer: pdfBuffer, filename: updatedResumeDb.title };
+}
 
 const deleteResume = async (data: findResumeByIdAndUserIdDto): Promise<void> => {
     const userDb = await usersRepository.getUserById(data.userId);
@@ -242,6 +242,6 @@ export const resumeService = {
     createResume,
     getUserResume,
     getListUserResume,
-    // updateResume,
+    updateResume,
     deleteResume
 } as const;

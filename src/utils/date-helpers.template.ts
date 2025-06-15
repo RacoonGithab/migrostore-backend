@@ -1,3 +1,4 @@
+
 export const calculateAge = (dateOfBirth: Date): number => {
     const today = new Date();
     const birthDate = new Date(dateOfBirth);
@@ -16,3 +17,4 @@ export const formatDate = (date: Date | null): string => {
 
     return d.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
 };
+
