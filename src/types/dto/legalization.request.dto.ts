@@ -10,3 +10,13 @@ export interface LegalizationRequestDto {
     comment: string;
     userId: string;
 }
+
+export interface getLegalizationRequestDto {
+    legalizationRequestId: string;
+    userId: string;
+}
+
+export interface deleteLegalizationRequestDto {
+    legalizationRequestId: string;
+    userId: string;
+}

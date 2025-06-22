@@ -15,6 +15,27 @@ legalizationRequestRouter.post(
     uploadMiddleware,
     validateRequestBody(createLegalizationRequestSchema),
     catchAsync(legalizationRequestController.createLegalizationRequest),
+);
+
+legalizationRequestRouter.get(
+    "/",
+    accessTokenValidation,
+    uploadMiddleware,
+    catchAsync(legalizationRequestController.getListLegalizationRequests)
+)
+
+legalizationRequestRouter.get(
+    "/:legalizationRequestId",
+    accessTokenValidation,
+    uploadMiddleware,
+    catchAsync(legalizationRequestController.getLegalizationRequest)
+)
+
+legalizationRequestRouter.delete(
+    "/:legalizationRequestId",
+    accessTokenValidation,
+    uploadMiddleware,
+    catchAsync(legalizationRequestController.deleteLegalizationRequest)
 )
 
 export default legalizationRequestRouter;
